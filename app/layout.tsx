@@ -30,7 +30,7 @@ export default function RootLayout({
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-lg font-semibold">
-                orels' Tips
+                orels&lsquo; Tips
               </h1>
             </div>
           </div>
