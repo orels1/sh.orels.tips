@@ -1,0 +1,51 @@
+---
+title: Importing Unreal Engine asset packs into Unity without pain
+tags: [Unity, Unreal, Assets]
+type: guide
+created: 2023-30-05T21:00:00+04:00
+---
+
+Unreal Marketplace has hundreds of amazing asset packs, but if your main engine is Unity - migrating them over can be a total chore. There are some automated solutions out there, but they all have their downsides. But thanks to @Rainwolf#0239 - we now have a solution that works pretty well.
+
+## GLTF
+
+GLTF is an open source file format that can be used to store 3D models, and, more importantly, whole scenes with materials!
+
+We're going to leverage that ability to import Unreal Engine asset packs into Unity.
+
+## Exporting from Unreal
+
+First of all - you'll need to [Follow this guide](https://docs.unrealengine.com/5.1/en-US/exporting-unreal-engine-content-to-gltf/) to set up the GLTF exporter in Unreal Engine.
+
+Here's a quick summary:
+
+- In your content browser - right click the level you want to export
+- Select "Asset Actions" > "Export..."
+- Select the `.gltf` file format
+- Click "Save"
+
+This should kick off the export process, which might take a while.
+
+> It's important to note that Unity cannot import GLTF files more than 4GB, so it is not recommended to transfer giant demo scenes like that without splitting them into chunks. Alternatively - you can export the asset grid scene to just get the base assets only.
+
+## Importing into Unity
+
+Unity does not natively understand the GLTF format (what a shame!). But thankfully the community have made numerous plugins to help us out.
+
+We're going to use the UniGLTF plugin created by the VRM project.
+
+To add this plugin - open your Unity Package Manager ("Window" > "Package Manager") and click the "+" button in the top left corner. Select "Add package from git URL..." and paste in the following URL:
+
+```md
+
+https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.110.0
+
+```
+
+> If that fails - that means you do not have Git installed on your machine. You can use the old .unitypackage file version in that case. Simply download the `UniVRM-VERSION.unitypackage` file from the [Releases page](https://github.com/vrm-c/UniVRM/releases/tag/v0.110.0) and import just the UniGLTF folder.
+
+After that is done - you should be able to simply drag & drop the .gltf file into your project and it will import the whole scene!
+
+Every texture will be bundled in, as well as every material, and all the textures will be re-converted into the Unity-compatible formats and the Standard shader will be used on all materials.
+
+Hope that helps~~

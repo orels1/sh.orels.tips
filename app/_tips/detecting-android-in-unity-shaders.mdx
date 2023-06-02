@@ -1,0 +1,37 @@
+---
+title: Detecting Android Platform in Unity Shaders
+tags: [Unity, Shaders]
+type: tip
+created: 2022-02-09T15:58:00+04:00
+source: z3y
+---
+
+There multiple ways of detecting if the shader is currently used for a mobile platform, one of the more common ones is using a `SHADER_API` define, like
+
+```hlsl
+#if !defined(SHADER_API_MOBILE)
+  // code for desktop only
+#endif
+```
+
+The issue with that is that its not going to be shown correctly in editor when switching the build target. While unity does switch the shaders its going to be building to match the platform, it will still run in plain DX mode, so all of your shaders will be running their desktop versions, unless you force the opengl mode in the editor, which requires a restart. [See here](/testing-opengl-in-unity)
+
+While using the `UNITY_PBS_USE_BRDF` group of defines allows you to detect the change without restarting everything. [More on that define here](https://www.notion.so/Unity-shader-defines-for-BIRP-39fc2ab2c09e4340a684a3dc414c31fb?pvs=21)
+
+> **Note:** This does not seem to be an issue anymore starting with Unity 2021 and beyond, but this method still works!
+
+```hlsl
+#if defined(UNITY_PBS_USE_BRDF2)
+  // code for android only
+#endif
+```
+
+I personally use a combination of the two like this
+
+```hlsl
+#if defined(UNITY_PBS_USE_BRDF2) || defined(SHADER_API_MOBILE)
+  #define PLAT_QUEST
+#endif
+```
+
+That way if I ever need to check that I'm runing on Quest (Android) - I can just check for this new unified `PLAT_QUEST` define.

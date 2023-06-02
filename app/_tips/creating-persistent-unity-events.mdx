@@ -1,0 +1,36 @@
+---
+title: Create a persistent Unity Event via and Editor Script
+tags: [Unity, Editor Scripts]
+type: guide
+created: 2022-12-08T20:26:00+04:00
+---
+
+Creating persistent unity event listeners is a bit of a pain because unity decided we dont need a nice api for it.
+
+The gist of it is simple - we use `UnityEventTools` class to register them, but first we need to reflect our delegate and that part is where a lot of people give up.
+
+Here’s a general flow of how this is meant to work
+
+1. Get a valid MethodInfo that can be used with UnityEvents via `UnityEvent.GetValidMethodInfo()`
+2. Create a delegate with `Delegate.CreateDelegate()`
+3. Pass it all to `UnityEventTools.Add<Type>PersistentListner(targetEvent, delegate, eventParam)`
+
+Here is how you would add a Method call that takes a string (VRC Udon’s SendCustomEvent)
+
+```cs
+var btn = newObj.GetComponent<Button>();
+var targetInfo = UnityEvent.GetValidMethodInfo(UdonSharpEditorUtility.GetBackingUdonBehaviour(t), "SendCustomEvent", new []{typeof(string)});
+var methodDelegate = Delegate.CreateDelegate(typeof(UnityAction<string>), UdonSharpEditorUtility.GetBackingUdonBehaviour(t), targetInfo) as UnityAction<string>;
+UnityEventTools.AddStringPersistentListener(btn.onClick, methodDelegate, "MyAmazingParameter");
+```
+
+Not the prettiest code but that is the general flow of things. You could clean it up a bit by pre-fetching the backing behaviour and such, just so you dont need to call that and `typeof` all the time. But that doesnt change the substance of this code
+
+Here’s another example of adding a call to a Unity AudioSource’s `PlayOneShot`
+
+```cs
+var btn = newObj.GetComponent<Button>();
+var targetInfo = UnityEvent.GetValidMethodInfo(yourAudioSource, "PlayOneShot", new []{typeof(AudioClip)});
+var methodDelegate = Delegate.CreateDelegate(typeof(UnityAction<AudioClip>), yourAudioSource, targetInfo) as UnityAction<AudioClip>;
+UnityEventTools.AddObjectPersistentListener(btn.onClick, methodDelegate, yourAudioClip);
+```

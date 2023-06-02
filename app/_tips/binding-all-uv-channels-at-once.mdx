@@ -1,0 +1,51 @@
+---
+title: Binding all UV channels in apdata in a single line
+tags: [Unity, Shaders]
+type: tip
+created: 2022-02-08T20:23:00+04:00
+source: d4rkpl4y3r
+---
+
+A simple way to bind all the UVs into an array
+
+```hlsl
+struct appdata
+{
+    float4 vertex : POSITION;
+    float3 normal : NORMAL;
+    float2 uv[8] : TEXCOORD0;
+};
+```
+
+Which compiles to
+
+```hlsl
+Input signature:
+
+Name                 Index   Mask Register SysValue  Format   Used
+-------------------- ----- ------ -------- -------- ------- ------
+POSITION                 0   xyzw        0     NONE   float   xyzw
+NORMAL                   0   xyz         1     NONE   float   xyz 
+TEXCOORD                 0   xy          2     NONE   float   xy  
+TEXCOORD                 1   xy          3     NONE   float   xy  
+TEXCOORD                 2   xy          4     NONE   float   xy  
+TEXCOORD                 3   xy          5     NONE   float   xy  
+TEXCOORD                 4   xy          6     NONE   float   xy  
+TEXCOORD                 5   xy          7     NONE   float   xy  
+TEXCOORD                 6   xy          8     NONE   float   xy  
+TEXCOORD                 7   xy          9     NONE   float   xy
+```
+
+You can then simply index into that array like this
+
+```hlsl
+[IntRange]_UVIndex("UV Map", Range(0, 7)) = 0
+
+// ...
+
+int _UVIndex;
+
+//...
+
+float2 uv = IN.uv[_UVIndex];
+```

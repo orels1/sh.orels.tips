@@ -1,0 +1,47 @@
+---
+title: Better Alpha blending in Render Targets
+tags: [Unity, Shaders]
+type: guide
+created: 2022-09-03T00:10:00+04:00
+source: 'd4rkpl4y3r'
+---
+
+There is an issue with the default `Blend SrcAlpha OneMinusSrcAlpha` blending, that if you have a transparent object on top of an opaque object - the final alpha value will be altered in the render target.
+
+Usually that is not a problem, until you’re starting to use render textures in a transparent shader. In that case, all of a sudden, your transparent objects will make everything behind them appear transparent too, instead of blending properly on top.
+
+You can solve that by utilizing the split blending available in the `Blend/BlendOp` commands, which allows you to define different blending logic for RGB and Alpha channels.
+
+[ShaderLab command: Blend](https://docs.unity3d.com/Manual/SL-Blend.html)
+
+Huge thanks to `d4rkpl4y3r` for spending time writing it out 🙏
+
+Here’s the code
+
+```hlsl
+Pass
+{
+	ZWrite [ZWrite]
+	BlendOp Add, Max
+	Blend SrcAlpha OneMinusSrcAlpha, One One
+	Tas { "LightMode" = "ForwardBase" }
+
+	CGPROGRAM
+	#pragma multi_compile_fwdbase
+	#pragma multi_compile _ VERTEXLIGHT_ON
+	// rest of your code
+	ENDCG
+}
+
+Pass
+{
+	ZWrite Off
+	Blend SrcAlpha One, Zero One
+	Tags { "LightMode" = "ForwardAdd" }
+	
+	CGPROGRAM
+	#pragma multi_compile_fwdadd
+	// rest of your code
+	ENDCG
+}
+```

@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  color-scheme: light dark;
+}
+
+p > code {
+  background-color: hsl(0, 0%, 39%);
+  color: #064e3b;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: #d9d9d9;
+    --background-start-rgb: #141221;
+    --background-end-rgb: #141221;
+  }
+
+  p > code {
+    background-color: hsl(0, 0%, 14%);
+    padding: 0.1rem 0.3rem;
+    color: #10b981;
+    border-radius: 0.3rem;
+    font-size: 0.9rem;
+  }
+}
+
+body {
+  color: var(--foreground-rgb);
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--background-end-rgb)
+    )
+    var(--background-start-rgb);
+}
+
+pre {
+  line-height: 0 !important;
+  margin: 1rem 0 !important;
+}
+
+.twitter-tweet.twitter-tweet-rendered {
+  margin-left: auto;
+  margin-right: auto;
+}

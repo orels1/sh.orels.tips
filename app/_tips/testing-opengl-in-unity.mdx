@@ -1,0 +1,19 @@
+---
+title: Testing OpenGL shaders in Unity Editor
+tags: [Unity, Shaders]
+type: tip
+created: 2022-02-09T16:02:00+04:00
+source: lox9973
+---
+
+If using Unity Hub, click the 3 dots button on your project → Add Command Line Arguments and paste the following param
+
+```shell
+-force-gles31
+```
+
+Otherwise, you can make a new shortcut for the unity editor and add the following launch params to the unity executable
+
+```shell
+-force-gles31 -projectpath <path to your project folder>
+```

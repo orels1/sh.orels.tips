@@ -1,0 +1,41 @@
+---
+title: Occlusion Probes (How do they work?!)
+tags: [Unity, Shaders]
+type: guide
+created: 2022-08-27T19:00:00+04:00
+---
+
+![occlusion probes demo](/img/tips/occlusion-probes/occlusion-probes-demo.gif "Occlusion Probes Demo")
+
+> 💡 This discusses specifically the implementation used in The Book of the Dead, which is something a lot of people bring up as “unity’s lost tech”.
+
+
+>☝ In unity 2019+ the Occlusion probes are supported natively if you’re using Shadowmask (or Subtractive) baking mode, which also utilizes main light occlusion and all the other fancy things. If you do not want that - you can still utilize the method described here
+
+Occlusion probes are a cool technique to attenuate the ambient light intensity based on how occluded the skybox is from the particular point of view.
+
+It relies on unity custom bake “API” (if you can call 2 functions and a property an API):
+
+[Unity - Scripting API: Experimental.Lightmapping.SetCustomBakeInputs](https://docs.unity3d.com/2019.4/Documentation/ScriptReference/Experimental.Lightmapping.SetCustomBakeInputs.html)
+
+[Unity - Scripting API: Experimental.Lightmapping.GetCustomBakeResults](https://docs.unity3d.com/2019.4/Documentation/ScriptReference/Experimental.Lightmapping.GetCustomBakeResults.html)
+
+To generate a samples of the sky visibility from the particular sample point (which takes your static objects + transparency into account). It also allows you to remove ambient contribution from the regular LightProbes themselves, so then you can manually composite it based on the occlusion strength. Here’s a sample output
+
+![occlusion probes preview](/img/tips/occlusion-probes/occlusion-probes-preview.jpg "Occlusion Probes Preview")
+
+As you can see - the more occluded areas - get darker. So its basically a world-scale occlusion texture that is stored separately.
+
+Despite being called “probes” the actual implementation Unity made didn’t really rely on “Probes” per-se. Instead it relied on creating a 3D texture from the output and then sampling it directly after setting it via the shader globals.
+
+The whole process is describe here
+
+[Book of the Dead: Quixel, wind, scene building, and content optimization tricks | Unity Blog](https://blog.unity.com/technology/book-of-the-dead-quixel-wind-scene-building-and-content-optimization-tricks)
+
+Ctrl+F for the Occlusion Probes
+
+There is also a github package that extracted the occlusion-probe specific code from the demo, so you wouldn’t need to download the whole thing
+
+https://github.com/0lento/OcclusionProbes
+
+You can use it in a project together with a compatible shader to generate pretty interesting results

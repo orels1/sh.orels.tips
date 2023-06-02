@@ -1,0 +1,27 @@
+---
+title: Edit default packages list for new Unity Projects
+tags: [Unity]
+type: guide
+created: 2022-09-16T21:47:00+04:00
+source: '3'
+---
+
+When creating a new unity project - it will often pull in outdated versions of some packages that will yell about updating. And we don’t like yelling!
+
+So here goes, how to edit the default dependencies of a new project template
+
+1. Navigate to `<YourUnityInstallPath>\2019.4.31f1\Editor\Data\Resources\PackageManager\ProjectTemplates`
+2. Clone the template you want to edit, default 3d one is `com.unity.template.3d-4.2.8.tgz`
+3. Inside - navigate to `package/ProjectData~/Packages` and open `manifest.json`
+4. Add any dependencies you want, like this
+
+```json
+{
+	"dependencies": {
+		"com.unity.ide.rider": "3.0.15"
+	}
+}
+```
+
+1. Save the updated .tgz archive and put it back into the `ProjectTemplates` folder, overriding the old one
+2. Go ahead and make a new project - you will now have an updated dependency right out of the box! Feel free to add more things to the `ProjectData~` as you see fit
