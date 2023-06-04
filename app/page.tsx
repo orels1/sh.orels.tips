@@ -118,18 +118,18 @@ export default async function Home() {
                 )}
               />
             </div>
-            <ul role="list">
+            <ul role="list" className="divide-y divide-solid divide-white/10 sm:divide-none">
               {tips.map((tip) => (
-                <li key={tip.frontmatter.title}>
-                  <Link href={tip.frontmatter.link ?? `/${tip.slug}`} target={tip.frontmatter.link !== undefined ? '_blank' : '_self'} className="relative flex justify-between items-center gap-x-6 group">
+                <li key={tip.frontmatter.title} className="my-2 sm:my-0 first:mt-0">
+                  <Link href={tip.frontmatter.link ?? `/${tip.slug}`} target={tip.frontmatter.link !== undefined ? '_blank' : '_self'} className="relative flex flex-col sm:flex-row justify-between sm:items-center gap-x-6 group">
                     <div className="py-2 pr-3 flex items-center gap-x-2">
                       <div className="w-[24px] h-[24px] scale-75 relative top-1">
                         {ICONS?.[tip.frontmatter.type] ?? <LightBulbIcon />}
                       </div>
-                      <div className="whitespace-nowrap text-sm font-semibold dark:text-gray-400 dark:group-hover:text-gray-100 transition-colors text-gray-900 group-hover:text-gray-700">
+                      <div className="sm:whitespace-nowrap leading-6 sm:leading-normal text-sm font-semibold dark:text-gray-400 dark:group-hover:text-gray-100 transition-colors text-gray-900 group-hover:text-gray-700">
                         <span className="underline-offset-8 underline">{tip.frontmatter.title}</span>
                         {tip.frontmatter.link !== undefined && (
-                          <span className="opacity-0 group-hover:opacity-50 text-xs ml-4 transition-opacity">opens in new tab</span>
+                          <span className="hidden sm:visible opacity-0 group-hover:opacity-50 text-xs ml-4 transition-opacity">opens in new tab</span>
                         )}
                       </div>
                     </div>

@@ -1,0 +1,98 @@
+---
+title: Perspective-corrected Matcaps in Unity
+tags: [Unity, Shaders, Source Files]
+type: guide
+created: 2022-01-29T12:47:00+04:00
+source: Bgolus
+---
+
+Matcaps are a very powerful lighting technique that allows u to get a very particular look in a single click, with a single texture sample.
+
+However they are not good with handling perspective. Here are a couple of techniques outline by Ben Golus which attempt to fix the issue.
+
+<Tweet tweetId="1487224443688554497" />
+
+```hlsl
+Shader "Unlit/MatCap Techniques"
+{
+    Properties
+    {
+        [NoScaleOffset] _MatCap ("MatCap", 2D) = "white" {}
+        [KeywordEnum(ViewSpaceNormal, ViewDirectionCross, ViewDirectionAligned)] _MatCapType ("Matcap UV Type", Float) = 2
+    }
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" }
+        LOD 100
+
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #pragma shader_feature _ _MATCAPTYPE_VIEWSPACENORMAL _MATCAPTYPE_VIEWDIRECTIONCROSS
+
+            #include "UnityCG.cginc"
+
+            struct v2f
+            {
+                float4 clipPos : SV_POSITION;
+                float3 worldSpaceNormal : TEXCOORD0;
+                float3 worldSpacePos : TEXCOORD1;
+            };
+
+            sampler2D _MatCap;
+
+            v2f vert (appdata_full v)
+            {
+                v2f o;
+                o.clipPos = UnityObjectToClipPos(v.vertex);
+                o.worldSpaceNormal = UnityObjectToWorldNormal(v.normal);
+                o.worldSpacePos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0));
+                return o;
+            }
+
+            fixed4 frag (v2f i) : SV_Target
+            {
+                float3 worldSpaceNormal = normalize(i.worldSpaceNormal);
+
+            #if defined(_MATCAPTYPE_VIEWSPACENORMAL)
+                // basic matcap using the viewspace normal
+                // 10 math instructions
+
+                float3 viewSpaceNormal = mul((float3x3)UNITY_MATRIX_V, worldSpaceNormal);
+                float2 matcapUV = normalize(viewSpaceNormal).xy;
+
+            #elif defined(_MATCAPTYPE_VIEWDIRECTION)
+                // usual fix that uses a cross product of the view direction and view normal
+                // 17 math instructions
+
+                float3 viewSpaceNormal = mul((float3x3)UNITY_MATRIX_V, worldSpaceNormal);
+                float3 viewSpaceViewDir = normalize(mul(UNITY_MATRIX_V, float4(i.worldSpacePos, 1.0)));
+                float2 matcapUV = cross(viewSpaceViewDir, viewSpaceNormal).yx;
+                matcapUV.x = -matcapUV.x;
+
+            #else // _MATCAPTYPE_VIEWDIRECTIONALIGNED
+                // improved technique that uses a view direction aligned normal
+                // 17 math instructions
+
+                float3 worldSpaceViewDir = normalize(i.worldSpacePos - _WorldSpaceCameraPos.xyz);
+
+                float3 up = mul((float3x3)UNITY_MATRIX_I_V, float3(0,1,0));
+                float3 right = normalize(cross(up, worldSpaceViewDir));
+                up = cross(worldSpaceViewDir, right);
+                float2 matcapUV = mul(float3x3(right, up, worldSpaceViewDir), worldSpaceNormal).xy;
+
+            #endif
+
+                // remap from -1 .. 1 to 0 .. 1
+                matcapUV = matcapUV * 0.5 + 0.5;
+
+                return tex2D(_MatCap, matcapUV);
+            }
+            ENDCG
+        }
+    }
+}
+```

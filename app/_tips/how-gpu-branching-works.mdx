@@ -1,0 +1,159 @@
+---
+title: How GPU Branching works
+tags: [Unity, Shaders]
+type: guide
+created: 2021-01-28T02:09:00+04:00
+source: Toocanzs
+---
+
+A deep dive into how branching on the GPU works (in the context of unity).
+
+You can find the original post [here](https://medium.com/@jasonbooth_86226/branching-on-a-gpu-18bfc83694f2).
+
+And here is the full article for safekeeping:
+
+If you consult the internet about writing a branch of a GPU, you might think they open the gates of hell and let demons in. They will say you should avoid them at all costs, and that you can avoid them by using the ternary operator or step() and other silly math tricks. Most of this advice is outdated at best, or just plain wrong.
+
+Let’s correct that.
+
+## Types of branches
+
+There are several things we need to consider when writing a branch on the GPU.
+
+The first is what kind of data is being branching on. If that data is from a constant buffer, for instance, the branch can be very cheap. This is because the compiler knows that the branch will go the same way for every pixel or vertex, because constant buffer state is guarantee’d to be constant for every pixel or vertex being processed in parallel.
+
+However, if that data is dynamic, say a value from a texture, then each pixel being processed together in parallel needs to process that branch. At this point the compiler has a choice to make- it can decide that the code in each path is small enough that it will just execute both sides and pick the correct result- or it can decide that a proper branch is needed. However, when pixels become divergent in this manner, other optimizations can be broken for those pixels. In general, we want to avoid branches on noisy signals that change every pixel.
+
+The second component is what kind of code is in each branch. If you are going to sample textures inside a branch, you need to use the gradient or LOD samplers. Essentially, you need to write your code like this:
+
+```hlsl
+float2 dx = ddx(uv);
+float2 fy = ddy(uv);UNITY_BRANCH // this is a Unity macro that forces a branch
+if (_SomeConstant > 1)
+{
+   o.Albedo += SAMPLE_TEXTURE2D_GRAD(_Albedo, sampler_Albedo, uv, dx, dy);
+}
+else
+{
+   o.Albedo += SAMPLE_TEXTURE2D_GRAD(_Albedo2, sampler_Albedo2, uv, dx, dy);
+}
+```
+
+*Note the UNITY_BRANCH macro- this compiles down to a API specific command that forces GPUs (which support it) to do a real branch and not decide to, say, sample both textures and select the correct result.*
+
+Why do we need this? To maintain the 2x2 quad optimization GPUs perform. If we do not do this, on most platforms we will get a compile error, on others it will execute both sides, and on others it will break the 2x2 quad optimization and run many times slower. By getting the derivatives used for texture sampling before the branch and passing them in, we prevent the GPU from potentially diverging those pixels.
+
+Finally we need to consider how a branch is evaluated. Up until the very latest HLSL, which is not available in Unity yet, consider this code:
+
+```hlsl
+if (_Constant > 1 && SomeFunc() > 1)
+{
+}
+```
+
+Unlike on a CPU, if _Constant is 0 SomeFunc() will still get called and evaluated.
+
+## A framework for working with branches
+
+In all of my shaders on the asset store, you’ll find code like this:
+
+```hlsl
+#if _BRANCHSAMPLES
+   #if _DEBUG_BRANCHCOUNT_TOTAL
+     float _branchWeightCount;
+     #define MSBRANCH(w) if (w > 0) _branchWeightCount++; if (w > 0)
+   #else
+     #define MSBRANCH(w) UNITY_BRANCH if (w > 0)
+   #endif
+#else
+   #if _DEBUG_BRANCHCOUNT_TOTAL
+     float _branchWeightCount;
+     #define MSBRANCH(w) if (w > 0) _branchWeightCount++;
+   #else
+     #define MSBRANCH(w)
+   #endif
+#endif
+```
+
+This code lets us easily count how many branches are being executed on a given pixel, and lets us easily toggle if branches are being used, or a view mode where we can display how many branches are being taken per pixel. The main use of this is to be able to visualize the frequency of branches being taken on potentially divergent paths. I will often create these for specific features as well (triplanar, stochastic, etc).
+
+Another set of macro’s lets us count actual texture samples at each pixel, so we can easily visualize the samples being taken:
+
+```hlsl
+#if _DEBUG_SAMPLECOUNT
+   int _sampleCount;
+   #define COUNTSAMPLE { _sampleCount++; }
+#else
+   #define COUNTSAMPLE
+#endif
+```
+
+Use of these would appear like so:
+
+```hlsl
+half4 a0 = half4(0,0,0,0);
+half4 a1 = half4(0,0,0,0);
+half4 a2 = half4(0,0,0,0);
+MSBRANCH(tc.pN0.x)
+{
+   a0 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv0[0], config.cluster0, d0);
+   COUNTSAMPLE
+}
+MSBRANCH(tc.pN0.y)
+{
+   a1 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv0[1], config.cluster0, d1);
+   COUNTSAMPLE
+}
+MSBRANCH(tc.pN0.z)
+{
+   a2 = MICROSPLAT_SAMPLE_DIFFUSE(tc.uv0[2], config.cluster0, d2);
+   COUNTSAMPLE
+}
+```
+
+To output this data to the screen, we can do:
+
+```hlsl
+#if _DEBUG_BRANCHCOUNT
+   o.Albedo = (float)_branchWeightCount / 12.0f;
+#endif
+```
+
+![Visualizing the triplanar branches in MicroSplat. Light areas tested true for more branches](/img/tips/how-gpu-branching-works/albedo-preview.png "Visualizing the triplanar branches in MicroSplat. Light areas tested true for more branches")
+
+For visualizing samples, I add a threshold property which the user can set- samples counts above the threshold draw in yellow, while anything below draws in shades of red:
+
+```hlsl
+#if _DEBUG_SAMPLECOUNT
+   float sdisp = (float)_sampleCount / max(_SampleCountDiv, 1);
+   half3 sdcolor = float3(sdisp, sdisp > 1 ? 1 : 0, 0);
+   o.Albedo = sdcolor;
+#endif
+```
+
+![Visualizing the sample count in MicroSplat](/img/tips/how-gpu-branching-works/sample-count.png "Visualizing the sample count in MicroSplat")
+
+Areas of red are under 9 samples, while yellow areas are 9 samples or more. If branching is disabled, the shader takes 28 samples per pixel, so in this simple case we are saving 2/3rds of our sampling cost with the branches.
+
+Another example, this time with Triplanar, Stochastic Texture Clusters, terrain weight branching enabled. Note that first the system culls by texture weight, so if a particular texture is not used on that pixel, triplanar and stochastic checks are culled as well. Then triplanar, the stochastic:
+
+![Final Rendering](/img/tips/how-gpu-branching-works/stochastic-preview.png "Final Rendering")
+
+![Visualizing Branches](/img/tips/how-gpu-branching-works/stochastic-branches.png "Visualizing Branches")
+
+Notice that are frequency of branches is much higher and will produce more divergent pixels, but the areas are still large enough to be an overall win.
+
+![Visualizing Sample Counts](/img/tips/how-gpu-branching-works/stochastic-samples.png "Visualizing Sample Counts")
+
+Without branches, the shader does 100 samples per pixel. With branching enabled, areas in red are under 34 samples per pixel, with areas in yellow 34 or over. The range of samples taken is from 9 to 72 samples per pixel.
+
+With these techniques, it’s possible to visualize exactly what the GPU is doing, and cull significant bandwidth from a complex shader. It’s also easy to enable and disable branching on different features, or view their data independently, to make sure your optimizations are really optimizations.
+
+## Summary
+
+- Do not fear branching on a GPU, in many cases it’s completely fine
+- Know what you are branching on, and what you are branching around.
+- Avoid branching on high frequency data and creating divergent pixels
+- Branching around textures requires special care
+- Visualize the data so you can see exactly what the GPU is doing
+- Order your branches from most likely to cull to least likely if possible.

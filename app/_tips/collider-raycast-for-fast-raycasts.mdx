@@ -1,0 +1,13 @@
+---
+title: Use Collider/Plane.Raycast for single-collider checks
+tags: [Udon, Unity]
+type: tip
+created: 2022-01-06T08:59:00+04:00
+source: TechAnon
+---
+
+Physics.Raycast can get expensive in complex scenes, as it involves the Unity Physics System and has to perform actual physics engine checks. While, more often than not, all you need to do is check whether a particular ray intersects a particular collider. That way is super cheap, as its a purely a mathematical function.
+
+With enough “pre-baked” scene data you can efficiently do checks against a group of colliders while still possibly running it cheaper than a single Physics.Raycast (i haven’t performed direct tests, but all the things I could find suggest that Collider.Raycast and Plane.Raycast are ridiculously cheap)
+
+[Unity Manual Reference](https://docs.unity3d.com/ScriptReference/Collider.Raycast.html)
