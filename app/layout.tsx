@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <div className="relative flex gap-8">
             <div className="flex flex-shrink-0 items-center">
               <a href="/">
@@ -35,7 +35,7 @@ export default function RootLayout({
             </div>
           </div>
         </div>
-        <div className="md:p-6 max-w-5xl w-full mx-auto">
+        <div className="md:p-6 w-full mx-auto">
           {children}
         </div>
       </body>

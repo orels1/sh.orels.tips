@@ -7,6 +7,10 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import TipRow from '@/components/TipRow';
 import dayjs from 'dayjs';
+import TipCategory from '@/components/TipCategory';
+import FilteredTips from '@/components/FilteredTips';
+import { Suspense } from 'react';
+import SearchBar from '@/components/SearchBar';
 
 const COLORS: Record<string, string> = {
   'Unity': 'bg-indigo-400/10 text-indigo-400 ring-indigo-400/30',
@@ -71,55 +75,21 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
-      <div className="flex col w-full max-w-5xl pb-2 leading-7">
-        This is my personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that
-      </div>
-      <div className="flex w-full max-w-5xl  items-center py-2">
-        <div className="w-full">
-          <label htmlFor="search" className="sr-only">
-            Search
-          </label>
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </div>
-            <input
-              id="search"
-              name="search"
-              className="block w-full md:rounded-md border-0 dark:bg-white/10 dark:ring-white/10 bg-white py-1.5 pl-10 pr-3 dark:text-gray-200 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-300 sm:text-sm sm:leading-6"
-              placeholder="Search"
-              type="search"
-            />
-          </div>
+      <div className="flex w-full items-start flex-col">
+        <div className="max-w-3xl text-sm pb-2 leading-6 dark:text-slate-400 text-slate-700">
+          This is my personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that
         </div>
       </div>
-      <div className="grow w-full max-w-5xl flow-root">
+      <div className="flex w-full items-center py-2">
+        <Suspense fallback={<div>Loading...</div>}>
+          <SearchBar />
+        </Suspense>
+      </div>
+      <div className="grow w-full mt-2 flow-root">
         {Object.entries(groupedTips).map(([category, tips]) => (
-          <div key={category} className="flex flex-col group/category">
-            <div className="flex">
-              <div
-                className={clsx(
-                  COLORS?.[category] ?? 'bg-gray-400/10 text-gray-400 ring-gray-400/20',
-                  'inline-flex items-center rounded-l-md px-2 py-1 text-xs font-medium ring-1 ring-inset mb-2 mt-8 group-first/category:mt-2'
-                )}
-              >
-                {category}
-              </div>
-              <div
-                className={clsx(
-                  COLORS?.[category] ?? 'bg-gray-400/10 text-gray-400 ring-gray-400/20',
-                  'inline-flex items-center px-2 py-1 mx-1 text-xs font-medium ring-1 ring-inset mb-2 mt-8 group-first/category:mt-2'
-                )}
-              >
-                {tips.length}
-              </div>
-              <div
-                className={clsx(
-                  COLORS?.[category] ?? 'bg-gray-400/10 text-gray-400 ring-gray-400/20',
-                  'inline-flex items-center rounded-r-md grow px-2 py-1 text-xs font-medium ring-1 ring-inset mb-2 mt-8 group-first/category:mt-2'
-                )}
-              />
-            </div>
+          <TipCategory key={category} category={category} count={tips.length}>
+            <FilteredTips tips={tips} />
+{/*             
             <ul role="list" className="divide-y divide-solid divide-white/10 sm:divide-none">
               {tips.map((tip) => (
                 <li key={tip.frontmatter.title} className="my-2 sm:my-0 first:mt-0">
@@ -136,17 +106,7 @@ export default async function Home() {
                       </div>
                     </div>
                     <div className="flex items-center gap-x-2">
-                      {/* <div className="whitespace-nowrap px-3 py-2 text-sm">
-                        <span
-                          className={clsx(
-                            COLORS?.[tip.frontmatter.category] ?? 'bg-gray-400/10 text-gray-400 ring-gray-400/20',
-                            'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset '
-                          )}
-                        >
-                          {tip.frontmatter.category}
-                        </span>
-                      </div> */}
-                      <div className="whitespace-nowrap px-3 py-2 flex flex-wrap gap-2 text-sm">
+                      <div className="whitespace-nowrap pl-3 py-2 flex flex-wrap gap-2 text-sm">
                         {tip.frontmatter.tags?.map((tag) => (
                           <span key={tag} className={clsx(
                                COLORS?.[tag] ?? 'bg-gray-400/10 text-gray-400 ring-gray-400/20',
@@ -160,8 +120,8 @@ export default async function Home() {
                   </Link>
                 </li>
               ))}
-            </ul>
-          </div>
+            </ul> */}
+          </TipCategory>
         ))}
       </div>
     </main>
