@@ -1,0 +1,36 @@
+---
+title: Unity Built-in Icons
+tags: [Unity, Editor Scripts]
+type: tip
+created: 2022-09-02T12:58:00+04:00
+---
+
+Unity ships with a lot of custom icons, so you often don’t need to draw your own!
+
+[Here’s a nifty table of all of them](https://github.com/halak/unity-editor-icons).
+
+> Check the Unity version at the top of the list, if you’re using older unity - you might not have all the icons
+
+You can utilize those by loading them as a texture using
+
+```cs
+var icon = EditorGUIUtility.IconContent(<iconName>);
+var iconTex = (Texture2D) icon.image;
+```
+
+In newer unity you can also set the icon on individual objects using SetIconForObject. If you’re not on Unity 2021, you need to reflect it, like this
+
+```cs
+private MethodInfo setIconForObject = typeof(EditorGUIUtility).GetMethod("SetIconForObject", BindingFlags.Static | BindingFlags.NonPublic);
+
+// ...
+
+var icon = EditorGUIUtility.IconContent("sv_icon_dot11_pix16_gizmo");
+setIconForObject.Invoke(null, new object[] {newPoint, icon.image});
+```
+
+Otherwise just do
+
+```cs
+EditorGUIUtility.SetIconForObject(gameObject, (Texture2D) iconContent.image);
+```

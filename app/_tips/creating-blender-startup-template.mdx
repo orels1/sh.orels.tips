@@ -1,0 +1,31 @@
+---
+title: Creating a Blender Startup Template
+tags: [Blender]
+type: guide
+created: 2022-12-28T01:38:00+04:00
+---
+
+![Example Startup Template](/img/tips/creating-blender-startup-template/topbar.png "Example Startup Template")
+
+Because blender is very dum dum - they don't allow you to create a new "Template" easily, which is annoying. And the guides are kinda confusing. So here's a tl;dr
+
+- Make a new blendfile and set up everything like you want your new template to be (layouts, materials, default meshes, everything)
+- Save it in a folder called the way you want your new template to be called, e.g. `Matcap`
+- Name the file `startup.blend`
+- Put this [`__init__.py`](/downloads/tips/creating-blender-startup-template/__init__.py) file into the same folder
+
+> The `__init__.py` is just an empty blender init script that does absolutely nothing!
+
+- Zip the folder
+- Open blender, open search and type `Install Application Template`
+
+![Install Application Template](/img/tips/creating-blender-startup-template/search.png "Install Application Template")
+
+- Point it to the archive you just made and load it up
+- You should now have this new template in your `File` → `New` menu!
+
+> The best part about it is that you now also have a separate startup file just for that template. Which means you can edit your specific setup without ruining any of the General defaults you already had!
+
+![Save Startup File](/img/tips/creating-blender-startup-template/save.png "Save Startup File")
+
+Hope that helps! ♥️

@@ -1,0 +1,71 @@
+---
+title: Reading pixels from a Render Texture in Udon
+tags: [Unity, Udon, VRChat]
+type: tip
+created: 2021-12-28T01:29:00+04:00
+source: Hai~
+---
+
+## Updated in June 2023
+
+You can now use AsyncGPUReadback to read pixels from a Render Texture in Udon. This is much faster than the method described below.
+
+[Here is the official documentation page](https://docs.vrchat.com/docs/asyncgpureadback).
+
+```cs
+using UdonSharp;
+using UnityEngine;
+using VRC.SDK3.Rendering;
+using VRC.Udon.Common.Interfaces;
+​
+public class AGPURB : UdonSharpBehaviour
+{
+    public Texture texture;
+​
+    void Start()
+    {
+        VRCAsyncGPUReadback.Request(texture, 0, (IUdonEventReceiver)this);
+    }
+​
+    public void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
+    {
+        if (request.hasError)
+        {
+            Debug.LogError("GPU readback error!");
+            return;
+        }
+        else
+        {
+            var px = new Color[texture.width * texture.height];
+            Debug.Log("GPU readback success: " + request.TryGetData(px));
+            Debug.Log("GPU readback data: " + px[0]);
+        }
+    }
+}
+```
+
+The main benefit of the new method is that it doesn't force a GPU sync, and thus doesnt stall the main thread until the frame is ready on the GPU. This async method has a tradeoff of being a couple frames delayed, but most of the time performance benefits outweigh the delay.
+
+## Older, slower method
+
+```cs
+// Attach this behavior to a Camera that writes into a RenderTexture
+public class RenderTextureReader : UdonSharpBehaviour
+{
+    public Texture2D proxyTexture;
+
+    private Rect _rect;
+
+    private void Start()
+    {
+        _rect = GetComponent<Camera>().pixelRect;
+    }
+
+    private void OnPostRender()
+    {
+        proxyTexture.ReadPixels(_rect, 0, 0, false);
+        proxyTexture.Apply(false);
+        Color[] pixels = proxyTexture.GetPixels();
+    }
+}
+```

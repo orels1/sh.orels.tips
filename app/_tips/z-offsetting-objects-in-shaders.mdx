@@ -1,0 +1,18 @@
+---
+title: Z-Offsetting objects in Shaders
+tags: [Unity, Shaders]
+type: guide
+created: 2021-12-28T01:45:00+04:00
+source: Lyuma
+---
+
+Sometimes you might need to offset the objects on z-axis to make them appear in front of others, e.g. Decals. Here’s an example of how to do it in a vertex shader
+
+```hlsl
+o.pos = UnityObjectToClipPos(v.vertex);
+float3 cameraVec = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1)).xyz - v.vertex.xyz;
+float4 tmpVertex = float4(v.vertex.xyz + normalize(cameraVec) * _ZOffsetAmount, 1);
+float4 clipPos2 = UnityObjectToClipPos(tmpVertex);
+
+o.pos.z = clipPos2.z * o.pos.w / o.pos.z;
+```

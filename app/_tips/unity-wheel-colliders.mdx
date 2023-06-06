@@ -1,0 +1,45 @@
+---
+title: Unity Wheel Colliders
+tags: [Unity]
+type: guide
+created: 2021-12-28T01:21:00+04:00
+source: Varneon
+---
+
+Wheel Colliders, how do they work?
+
+In simple terms everything starts with the placement, as you drop the wheelcolliders to the root GameObject, they will lock themselves to roll in the direction of GO's forward axis. From there you pass the variable for steering:
+
+```cs
+WheelCollider.steerAngle
+```
+
+Pass the torque coming from the drivetrain in Nm:
+
+```cs
+WheelCollider.motorTorque
+```
+
+Then you have brake:
+
+```
+WheelCollider.brakeTorque
+```
+
+For drivetrain torque calculations it is important to take in the rotations per minute from the wheel to make sure we are at our desired rpm:
+
+```
+WheelCollider.rpm
+```
+
+From there everything gets more complex and it's best to refer to the official documentation, but this is the simple steps to get started.
+[It's also best to note that the wheelcollider frictions are broken af](https://forum.unity.com/threads/wheel-friction-curve-revealed.153340/).
+
+Unity Forum Wheel Friction Curve Revealed The Wheel Friction Curve used by Unity has major problems.
+
+Most importantly there are significant differences between the actual curves and the...
+
+I'm currently looking into potentially writing my own physics solution for the wheels just so I don't have to deal with this BS
+Here are some reasonable parameters to get started
+
+![Good Default Settings](/img/tips/unity-wheel-colliders/good-defaults.png "Good Default Settings")

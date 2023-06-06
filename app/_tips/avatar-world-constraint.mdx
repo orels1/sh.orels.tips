@@ -1,0 +1,20 @@
+---
+title: Avatar World Constraint
+tags: [Unity, VRChat, Avatars]
+type: tip
+created: 2021-12-28T01:16:00+04:00
+source: Hai~
+---
+
+- Create an empty gameobject, and turn it into a prefab by drag and dropping in into the project explorer
+- Delete that prefab from your scene
+- Layout an hierarchy like this: `<Your avatar>/.../ToWorld/ToAvatar/<The object you want to drop in world space>`.
+- In ToWorld, add a Parent Constraint
+    - Click "+", and drag and drop the prefab from the project explorer directly onto the slot. You don't need to have the prefab existing in your scene.
+    - Press Activate
+- In ToAvatar, place the ToAvatar object so that the object you want to drop in world space lines up with the bone that will drop it, or a child of the bone that will drop it.
+    - Example: If you need to drop it from the avatar left hand, position the ToAvatar object so that the object will be correctly positioned onto the avatar left hand
+    - Create a child gameobject within ToAvatar, and change its position in the hierarchy so that it is a child of the bone that will be followed to place the object (in the video, it is called Avatar Hand)
+- In ToAvatar, add a Parent Constraint
+    - Click "+", and drag and drop the followed gameobject (in the video, it is called Avatar Hand)
+    - Press Activate(edited)

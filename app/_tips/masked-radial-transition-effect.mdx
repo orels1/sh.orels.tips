@@ -1,0 +1,55 @@
+---
+title: Masked Radial Transition Effect
+tags: [Shaders, References]
+type: tip
+created: 2021-12-28T01:31:00+04:0
+---
+
+Masked transitions are the lifeblood of a lot of VFX, here’s a nice general purpose how-to guide.
+
+![Masked Radial Transition Guide](/img/tips/masked-radial-transition-effect/guide.jfif "Masked Radial Transition Guide")
+
+The gist of effects like this is to create a tiled texture with some sort of a gradient shape, which would allow for an interesting fadeout effect which looks like the shape is being scaled.
+
+Then to multiply it by the transition shape you are tyring to achieve. So if you want it to transition in a circular pattern - multiply it by a radial gradient. If you want it to transition linearly, e.g. side-to-side - multiply it by a linear side-to-side gradient, etc.
+
+Then you just apply a threshold (a `smoothstep` or even just `step` in sahder land) and then offset it to create the transition effect.
+
+Here's a simple reference shader
+
+```hlsl
+Properties
+{
+    _MaskTex("Mask Texture", 2D) = "white" {}
+    _Progress("Transition Progress", Range(0,1)) = 0
+}
+
+//...
+
+Texture2D<float4> _MaskTex;
+SamplerState sampler_MaskTex;
+
+//...
+
+float4 frag(v2f i) : SV_Target
+{
+    float4 color = float4(0.5,0.5,0.5, 1); // some base color
+    float4 otherColor = float4(1,1,0,1); // color to fade
+
+    var mask = _MaskTex.Sample(sampler_MaskTex, i.uv); // sample the mask texture
+
+    var factor = step(_Progress, mask);
+
+    color.rgb = lerp(color, otherColor, mask);
+
+    return color;
+}
+```
+
+Adjusting `_Progress` should now fade the color from `color` to `otherColor` based on the mask texture.
+
+My ORL Shaders package has a built in shader that can achieve similar effects with an added feature of doing a cutout dissolve. [Check it out!](https://shaders.orels.sh/docs/orl-standard/dissolve)
+
+Original tweet:
+
+<Tweet tweetId="1301528245477584898" />

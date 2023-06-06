@@ -17,6 +17,8 @@ const COLORS: Record<string, string> = {
   'References': 'bg-red-400/10 text-red-400 ring-red-400/30',
   'Editor Scripts': 'bg-sky-400/10 text-sky-400 ring-sky-400/30',
   'Blender': 'bg-amber-400/10 text-amber-400 ring-amber-400/30',
+  'Udon': 'bg-lime-400/10 text-lime-400 ring-lime-400/30',
+  'Tech Art': 'bg-rose-400/10 text-rose-400 ring-rose-400/30',
 }
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -129,7 +131,7 @@ export default async function Home() {
                       <div className="sm:whitespace-nowrap leading-6 sm:leading-normal text-sm font-semibold dark:text-gray-400 dark:group-hover:text-gray-100 transition-colors text-gray-900 group-hover:text-gray-700">
                         <span className="underline-offset-8 underline">{tip.frontmatter.title}</span>
                         {tip.frontmatter.link !== undefined && (
-                          <span className="hidden sm:visible opacity-0 group-hover:opacity-50 text-xs ml-4 transition-opacity">opens in new tab</span>
+                          <span className="hidden sm:inline-flex opacity-0 group-hover:opacity-50 text-xs ml-4 transition-opacity">opens in new tab</span>
                         )}
                       </div>
                     </div>

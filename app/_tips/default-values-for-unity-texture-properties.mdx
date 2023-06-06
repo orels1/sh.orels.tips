@@ -1,0 +1,42 @@
+---
+title: Default Values for Unity Texture Properties
+tags: [Unity, Shaders]
+type: tip
+created: 2021-12-28T01:18:00+04:00
+source: Pema
+---
+
+Unity shader props can have other options for the default texture beyond just `white` or `black`
+
+Here’s the full list
+
+```hlsl
+white
+black
+red
+gray
+grey
+linearGray
+linearGrey
+grayscaleRamp
+greyscaleRamp
+bump
+blackCube
+lightmap
+unity_Lightmap
+unity_LightmapInd
+unity_ShadowMask
+unity_DynamicLightmap
+unity_DynamicDirectionality
+unity_DynamicNormal
+unity_DitherMask
+_DitherMaskLOD
+_DitherMaskLOD2D
+unity_RandomRotation16
+unity_NHxRoughness
+unity_SpecCube0
+unity_SpecCube1
+
+//
+IE _MainTex ("Texture", 2D) = "unity_DynamicLightmap" {}
+```

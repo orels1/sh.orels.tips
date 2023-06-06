@@ -1,0 +1,15 @@
+---
+title: Infinite Camera far plane in a Shader
+tags: [Unity, Shaders]
+type: tip
+created: 2022-12-25T22:21:00+04:00
+source: Hekky
+---
+
+You can use this in your vertex shader to make the far plane of the camera effectively infinite
+
+```hlsl
+float4x4 INF_PERSPECTIVE = UNITY_MATRIX_P;
+INF_PERSPECTIVE._m22 = 0.000000953674;
+OUT.vertex = mul(INF_PERSPECTIVE, mul(UNITY_MATRIX_V, mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0))));
+```

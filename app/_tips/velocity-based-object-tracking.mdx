@@ -1,0 +1,48 @@
+---
+title: Velocity-based object tracking for Unity
+tags: [Unity, Udon]
+type: guide
+created: 2021-12-28T01:43:00+04:00
+---
+
+Unity uses this logic for following objects using velocity, taken from Unity XR Interactible Toolkit.
+
+```cs
+void PerformVelocityTrackingUpdate(float timeDelta, XRInteractionUpdateOrder.UpdatePhase updatePhase)
+{
+
+    if (updatePhase == XRInteractionUpdateOrder.UpdatePhase.Fixed)
+    {
+        // Do velocity tracking
+        if (trackPosition)
+        {
+            // scale initialized velocity by prediction factor
+            m_RigidBody.velocity *= k_VelocityPredictionFactor;
+            var posDelta = m_TargetWorldPosition - m_RigidBody.worldCenterOfMass;
+            var velocity = posDelta / timeDelta;
+
+            if (!float.IsNaN(velocity.x))
+                m_RigidBody.velocity += velocity;
+        }
+
+        // Do angular velocity tracking
+        if (trackRotation)
+        {
+            // scale initialized velocity by prediction factor
+            m_RigidBody.angularVelocity *= k_VelocityPredictionFactor;
+            var rotationDelta = m_TargetWorldRotation * Quaternion.Inverse(m_RigidBody.rotation);
+            float angleInDegrees; Vector3 rotationAxis;
+            rotationDelta.ToAngleAxis(out angleInDegrees, out rotationAxis);
+            if (angleInDegrees > 180)
+                angleInDegrees -= 360;
+
+            if (Mathf.Abs(angleInDegrees) > Mathf.Epsilon)
+            {
+                var angularVelocity = (rotationAxis * angleInDegrees * Mathf.Deg2Rad) / timeDelta;
+                if (!float.IsNaN(angularVelocity.x))
+                    m_RigidBody.angularVelocity += angularVelocity * k_AngularVelocityDamping;
+            }
+        }
+    }
+}
+```

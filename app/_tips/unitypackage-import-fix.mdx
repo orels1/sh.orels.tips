@@ -1,0 +1,41 @@
+---
+title: Unitypackage Import Fix
+tags: [Unity]
+type: guide
+created: 2021-12-28T01:39:00+04:00
+---
+
+This will fix unitypackages not importing after deleting an old editor version.
+
+Just copy-paste this into a text file, update the paths to point to your unity installs and change the extension to `.reg`
+
+This one is written for default install path of unity `2019.4.31f`
+
+```text
+Windows Registry Editor Version 5.00
+[HKEY_CLASSES_ROOT\.unityPackage]
+@="Unity package file"
+"backup_val"="Unity package file"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Unity package file]
+@="Unity package file"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Unity package file\DefaultIcon]
+@="\"C:\\Program Files\\Unity\\Hub\\Editor\\2019.4.31f\\Editor\\Unity.exe\",0"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Unity package file\shell]
+@="open"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Unity package file\shell\edit]
+@="Edit Unity package file"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Unity package file\shell\edit\command]
+@="\"C:\\Program Files\\Unity\\Hub\\Editor\\2019.4.31f\\Editor\\Unity.exe\" -openfile \"%1\""
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Unity package file\shell\open]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Unity package file\shell\open\command]
+@="\"C:\\Program Files\\Unity\\Hub\\Editor\\2019.4.31f\\Editor\\Unity.exe\" -openfile \"%1\""
+
+[-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.unitypackage]
+```
