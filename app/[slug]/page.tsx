@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import dayjs from 'dayjs';
 import Tweet from '@/components/Tweet';
 import { COLORS } from "@/utils/constants";
+import { shuffle } from '@/utils/utils';
 
 export async function generateStaticParams()
 {
@@ -83,6 +84,7 @@ export default async function Page({
       tags: tip.frontmatter.tags,
       slug: tip.slug,
     }));
+    shuffle(relatedPosts);
   }
 
   return (
