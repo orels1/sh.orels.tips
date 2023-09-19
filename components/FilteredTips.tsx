@@ -60,7 +60,7 @@ export default function FilteredTips({
   }, [tips, search, searchParams]);
 
   return (
-    <ul role="list" className="divide-y divide-solid divide-white/10 sm:divide-none">
+    <ul role="list" className="divide-y divide-solid divide-black/10 dark:divide-white/10 sm:divide-none">
       {filtered.map((tip) => (
         <li key={tip.frontmatter.title} className="my-2 sm:my-0 first:mt-0">
           <Link href={tip.frontmatter.link ?? `/${tip.slug}`} target={tip.frontmatter.link !== undefined ? '_blank' : '_self'} className="relative flex flex-col sm:flex-row justify-between sm:items-center gap-x-6 group">

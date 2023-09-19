@@ -63,15 +63,15 @@ export async function generateMetadata(
 
 
 const components = (slug: string) => ({
-  h1: (props: any) => <h1 className="text-2xl text-green-200 mb-8 font-semibold" {...props} />,
-  h2: (props: any) => <Link href={`/${slug}/#${props.id}`} scroll><h2 className="text-xl text-green-200 mt-6 mb-4 font-semibold" {...props} /></Link>,
-  h3: (props: any) => <Link href={`/${slug}/#${props.id}`} scroll><h3 className="text-lg text-green-200 my-4 font-semibold" {...props} /></Link>,
-  h4: (props: any) => <Link href={`/${slug}/#${props.id}`} scroll><h4 className="text-base text-green-200 my-2 font-semibold" {...props} /></Link>,
+  h1: (props: any) => <h1 className="text-2xl text-emerald-500 dark:text-green-200 mb-8 font-semibold" {...props} />,
+  h2: (props: any) => <Link href={`/${slug}/#${props.id}`} scroll><h2 className="text-xl text-emerald-500 dark:text-green-200 mt-6 mb-4 font-semibold" {...props} /></Link>,
+  h3: (props: any) => <Link href={`/${slug}/#${props.id}`} scroll><h3 className="text-lg text-emerald-500 dark:text-green-200 my-4 font-semibold" {...props} /></Link>,
+  h4: (props: any) => <Link href={`/${slug}/#${props.id}`} scroll><h4 className="text-base text-emerald-500 dark:text-green-200 my-2 font-semibold" {...props} /></Link>,
   pre: (props: any) => <pre {...props} className={clsx(props.className, "rounded-md my-4")} />,
   blockquote: (props: any) => <blockquote {...props} className={clsx(props.className, "ring-inset ring-1 ring-white/10 bg-white/10 rounded-md px-4 my-4 py-[1px]")} />,
-  p: (props: any) => <p {...props} className={clsx(props.className, "my-4 text-gray-300 leading-relaxed")} />,
+  p: (props: any) => <p {...props} className={clsx(props.className, "my-4 text-gray-800 dark:text-gray-300 leading-relaxed")} />,
   ul: (props: any) => <ul {...props} className={clsx(props.className, "list-disc list-inside mt-1 mb-4")} />,
-  li: (props: any) => <li {...props} className={clsx(props.className, "my-1 ring-inset ring-1 rounded-md pl-3 ring-white/5 bg-white/5")} />,
+  li: (props: any) => <li {...props} className={clsx(props.className, "my-1 ring-inset ring-1 rounded-md pl-3 dark:ring-white/5 dark:bg-white/5 ring-black/5 bg-black/10")} />,
   a: (props: any) => <Link {...props} className={clsx(props.className, "text-indigo-400 hover:text-indigo-300")} />,
   img: (props: any) => (
     <span className="flex items-center flex-col my-4">
@@ -129,7 +129,7 @@ export default async function Page({
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div className="mb-6 flex flex-col">
-        <h1 className="text-2xl text-green-200 mb-2 font-semibold">
+        <h1 className="text-2xl text-emerald-500 dark:text-green-200 mb-2 font-semibold">
           {mdx.frontmatter.title}
         </h1>
         <div className="flex items-center text-xs dark:text-gray-400 text-gray-700">
@@ -164,12 +164,12 @@ export default async function Page({
       />
       <hr className="border-white/10" />
       <div className="mt-6 mb-8">
-        <div className="text-2xl text-green-200 font-semibold mb-4">
+        <div className="text-2xl text-emerald-500 dark:text-green-200 font-semibold mb-4">
           More {mainTag} Tips
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {relatedPosts.length > 0 && relatedPosts.slice(0, Math.min(6, relatedPosts.length)).map((post, index) => (
-            <post.LinkComponent href={post.isLink ? (post.link ?? '/') : `/${post.slug}`} {...(post.isLink ? { target: '_blank' } : {})} key={post.slug} className="flex flex-col justify-between p-4 rounded ring-1 ring-white/10 hover:ring-white/20 transition-shadow">
+            <post.LinkComponent href={post.isLink ? (post.link ?? '/') : `/${post.slug}`} {...(post.isLink ? { target: '_blank' } : {})} key={post.slug} className="flex flex-col justify-between p-4 rounded ring-1 ring-purple-400/60 hover:ring-purple-400 dark:ring-white/10 dark:hover:ring-white/20 transition-shadow">
               <div className="font-semibold">{post.title}</div>
               <div className="flex row flex-wrap mt-2 gap-2 items-start">
                 {post.tags && post.tags.map((tag) => (
