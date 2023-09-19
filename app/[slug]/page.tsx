@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import Tweet from '@/components/Tweet';
 import { COLORS } from "@/utils/constants";
 import { shuffle } from '@/utils/utils';
+import { Metadata } from 'next';
 
 export async function generateStaticParams()
 {
@@ -24,6 +25,33 @@ export async function generateStaticParams()
       slug
     }
   });
+}
+
+export async function generateMetadata(
+  { params }: { params: { slug: string } },
+): Promise<Metadata> {
+  const { slug } = params;
+ 
+  const content = await fs.readFile(path.join('app', '_tips', slug + '.mdx'), 'utf-8');
+  const mdx = await compileMDX<{
+    title: string;
+    tags?: string[];
+    created: string;
+    source?: string;
+  }>({
+    source: content,
+    options: { parseFrontmatter: true }
+  });
+ 
+  return {
+    title: mdx.frontmatter.title,
+    openGraph: {
+      title: mdx.frontmatter.title,
+    },
+    twitter: {
+      title: mdx.frontmatter.title,
+    }
+  }
 }
 
 

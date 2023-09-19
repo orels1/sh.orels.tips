@@ -16,12 +16,14 @@ export const metadata: Metadata = {
     description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
     title: 'orels\' Tips',
     siteName: 'orels\' Tips',
+    images: ['https://tips.orels.sh/orels-tips-splash.png'],
   },
   twitter: {
     site: '@orels1_',
     card: 'summary_large_image',
     description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
     title: 'orels\' Tips',
+    images: ['https://tips.orels.sh/orels-tips-splash.png'],
   },
 }
 
