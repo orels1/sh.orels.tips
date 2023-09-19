@@ -3,20 +3,9 @@ import Link from "next/link";
 import { MagnifyingGlassIcon, AcademicCapIcon, BookOpenIcon, LightBulbIcon, DocumentArrowDownIcon, LinkIcon } from '@heroicons/react/24/outline';
 import clsx from "clsx";
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useMemo } from "react";
-
-const COLORS: Record<string, string> = {
-  'Unity': 'bg-indigo-400/10 text-indigo-400 ring-indigo-400/30',
-  'Unreal': 'bg-pink-400/10 text-pink-400 ring-pink-400/30',
-  'Assets': 'bg-emerald-400/10 text-emerald-400 ring-emerald-400/30',
-  'Source Files': 'bg-orange-400/10 text-orange-400 ring-orange-400/30',
-  'Shaders': 'bg-purple-400/10 text-purple-400 ring-purple-400/30',
-  'References': 'bg-red-400/10 text-red-400 ring-red-400/30',
-  'Editor Scripts': 'bg-sky-400/10 text-sky-400 ring-sky-400/30',
-  'Blender': 'bg-amber-400/10 text-amber-400 ring-amber-400/30',
-  'Udon': 'bg-lime-400/10 text-lime-400 ring-lime-400/30',
-  'Tech Art': 'bg-rose-400/10 text-rose-400 ring-rose-400/30',
-}
+import { useContext, useMemo } from "react";
+import { COLORS } from "@/utils/constants";
+import { SearchContext } from "@/searchContext";
 
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -41,9 +30,9 @@ export default function FilteredTips({
   }>;
 }) {
   const searchParams = useSearchParams();
+  const { search } = useContext(SearchContext);
 
   const filtered = useMemo(() => {
-    const search = searchParams.get('search')?.toLowerCase();
     const tag = searchParams.get('tag')?.toLowerCase();
 
     if (search === undefined && tag === undefined) {
@@ -52,10 +41,10 @@ export default function FilteredTips({
 
     return tips.filter((tip) => {
       if (search !== undefined) {
-        if (tip.frontmatter.title.toLowerCase().includes(search)) {
+        if (tip.frontmatter.title.toLowerCase().includes(search.toLocaleLowerCase())) {
           return true;
         }
-        if (tip.frontmatter.tags.some((tag) => tag.toLowerCase().includes(search))) {
+        if (tip.frontmatter.tags.some((tag) => tag.toLowerCase().includes(search.toLocaleLowerCase()))) {
           return true;
         }
       }
@@ -68,7 +57,7 @@ export default function FilteredTips({
 
       return false;
     });
-  }, [tips, searchParams]);
+  }, [tips, search, searchParams]);
 
   return (
     <ul role="list" className="divide-y divide-solid divide-white/10 sm:divide-none">

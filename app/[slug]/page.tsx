@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import Link from 'next/link';
 import { compileMDX, MDXRemote } from 'next-mdx-remote/rsc';
 import React, { Suspense } from 'react';
@@ -8,6 +8,7 @@ import rehypePrism from '@mapbox/rehype-prism';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import Tweet from '@/components/Tweet';
+import { COLORS } from "@/utils/constants";
 
 export async function generateStaticParams()
 {
@@ -23,22 +24,6 @@ export async function generateStaticParams()
   });
 }
 
-const getMDXContent = async (slug: string) => {
-  const text = await fs.readFile(path.join('app', '_tips', slug + '.mdx'), 'utf-8');
-  const { content, frontmatter } = await compileMDX<{
-    title: string;
-    tags: string[];
-    category: string;
-  }>({
-    source: text,
-    options: { parseFrontmatter: true }
-  });
-  return {
-    frontmatter,
-    slug,
-    content
-  }
-}
 
 const components = (slug: string) => ({
   h1: (props: any) => <h1 className="text-2xl text-green-200 mb-8 font-semibold" {...props} />,
@@ -81,6 +66,24 @@ export default async function Page({
     source: content,
     options: { parseFrontmatter: true }
   });
+  const contentMap = JSON.parse(await fs.readFile(path.join('app', 'content-map.json'), 'utf-8')) as Record<string, Array<{ frontmatter: { title: string; tags: string[]; }, slug: string; }>>;
+  
+  let relatedPosts: Array<{ title: string; slug: string; tags: string[] }> = [];
+
+  let mainTag = mdx.frontmatter.tags?.[0];
+  if ((mdx.frontmatter.tags?.length ?? 0) > 0) {
+    if (mainTag == 'Unity') {
+      mainTag = mdx.frontmatter.tags?.[1];
+    }
+  }
+
+  if (mainTag) {
+    relatedPosts = contentMap[mainTag].map(tip => ({
+      title: tip.frontmatter.title,
+      tags: tip.frontmatter.tags,
+      slug: tip.slug,
+    }));
+  }
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -118,6 +121,24 @@ export default async function Page({
         }}
         components={components(slug)}
       />
+      <hr className="border-white/10" />
+      <div className="mt-6 mb-8">
+        <div className="text-2xl text-green-200 font-semibold mb-4">
+          More {mainTag} Tips
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {relatedPosts.length > 0 && relatedPosts.slice(0, Math.min(6, relatedPosts.length)).map((post, index) => (
+            <Link href={`/${post.slug}`} key={post.slug} className="flex flex-col justify-between p-4 rounded ring-1 ring-white/10 hover:ring-white/20 transition-shadow">
+              <div className="font-semibold">{post.title}</div>
+              <div className="flex row flex-wrap mt-2 gap-2 items-start">
+                {post.tags && post.tags.map((tag) => (
+                  <div className={clsx(COLORS?.[tag] ?? 'bg-gray-400/10 text-gray-400 ring-gray-400/20', 'text-xs rounded-sm px-2 py-1 font-medium ring-1 ring-inset')} key={tag}>{tag}</div>
+                ))}
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
     </Suspense>
   )
 }
