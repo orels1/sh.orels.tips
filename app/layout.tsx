@@ -35,7 +35,7 @@ export default function RootLayout({
             </div>
           </div>
         </div>
-        <div className="md:p-6 w-full mx-auto">
+        <div className="md:p-6 p-2 w-full mx-auto">
           {children}
         </div>
       </body>

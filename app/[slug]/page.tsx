@@ -67,7 +67,7 @@ export default async function Page({
     source: content,
     options: { parseFrontmatter: true }
   });
-  const contentMap = JSON.parse(await fs.readFile(path.join('app', 'content-map.json'), 'utf-8')) as Record<string, Array<{ frontmatter: { title: string; tags: string[]; }, slug: string; }>>;
+  const contentMap = JSON.parse(await fs.readFile(path.join('app', 'content-map.json'), 'utf-8')) as Record<string, Array<{ frontmatter: { title: string; link?: string; tags: string[]; }, slug: string; }>>;
   
   let relatedPosts: Array<{ title: string; slug: string; tags: string[] }> = [];
 
@@ -79,7 +79,7 @@ export default async function Page({
   }
 
   if (mainTag) {
-    relatedPosts = contentMap[mainTag].map(tip => ({
+    relatedPosts = contentMap[mainTag].filter(tip => !tip.frontmatter.link && tip.slug != slug).map(tip => ({
       title: tip.frontmatter.title,
       tags: tip.frontmatter.tags,
       slug: tip.slug,
