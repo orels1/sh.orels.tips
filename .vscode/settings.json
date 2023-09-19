@@ -1,5 +1,9 @@
 {
   "cSpell.words": [
     "frontmatter"
-  ]
+  ],
+  "markdown.copyFiles.destination": {
+    "**/app/_tips/*.mdx": "${documentWorkspaceFolder}/public/img/tips/${documentBaseName}/${documentBaseName}-${fileName}",
+  },
+  "markdown.copyFiles.overwriteBehavior": "nameIncrementally",
 }
