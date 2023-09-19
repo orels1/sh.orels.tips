@@ -1,4 +1,5 @@
 import 'server-only';
+import { Metadata } from 'next';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import { MagnifyingGlassIcon, AcademicCapIcon, BookOpenIcon, LightBulbIcon, DocumentArrowDownIcon, LinkIcon } from '@heroicons/react/24/outline';
 import fs from 'fs/promises';
@@ -39,6 +40,28 @@ const getTipsList = async () => {
   }));
 
   return tipsList.sort((a, b) => dayjs(a.frontmatter.created).isBefore(dayjs(b.frontmatter.created)) ? 1 : -1);
+}
+
+export const metadata: Metadata = {
+  title: 'orels\' Tips',
+  description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
+  metadataBase: new URL('https://tips.orels.sh'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://tips.orels.sh',
+    description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
+    title: 'orels\' Tips',
+    siteName: 'orels\' Tips',
+    images: ['https://tips.orels.sh/orels-tips-splash.png'],
+  },
+  twitter: {
+    site: '@orels1_',
+    card: 'summary_large_image',
+    description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
+    title: 'orels\' Tips',
+    images: ['https://tips.orels.sh/orels-tips-splash.png'],
+  },
 }
 
 export default async function Home() {
