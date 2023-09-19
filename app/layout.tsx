@@ -1,8 +1,31 @@
+import { Metadata  } from 'next';
 import './globals.css';
 import './prism-duotone-dark.css';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'orels\' Tips',
+  description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
+  metadataBase: new URL('https://tips.orels.sh'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://tips.orels.sh',
+    description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
+    title: 'orels\' Tips',
+    siteName: 'orels\' Tips',
+    images: '/orels-tips-splash.png',
+  },
+  twitter: {
+    site: '@orels1_',
+    card: 'summary_large_image',
+    description: 'My personal dumping ground for all the random pieces of knowledge I find and discover myself. I have always collected things like this, but they have become too spread out over the years. This place is meant to be an organized spot for that',
+    title: 'orels\' Tips',
+    images: '/orels-tips-splash.png',
+  },
+}
 
 export default function RootLayout({
   children,

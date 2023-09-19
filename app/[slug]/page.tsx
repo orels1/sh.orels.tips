@@ -45,12 +45,6 @@ export async function generateMetadata(
  
   return {
     title: mdx.frontmatter.title,
-    openGraph: {
-      title: mdx.frontmatter.title,
-    },
-    twitter: {
-      title: mdx.frontmatter.title,
-    }
   }
 }
 
@@ -117,7 +111,6 @@ export default async function Page({
       LinkComponent: tip.frontmatter.link ? (props: { href: string; target: string; children: React.ReactNode; className: string; }) => <a {...props} /> : (props: { href: string; children: React.ReactNode; className: string; }) => <Link {...props} />
     }));
     shuffle(relatedPosts);
-    console.log(relatedPosts);
   }
 
   return (
