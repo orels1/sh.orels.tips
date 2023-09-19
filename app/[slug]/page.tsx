@@ -1,3 +1,4 @@
+import 'server-only';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import Link from 'next/link';
@@ -69,7 +70,7 @@ export default async function Page({
   });
   const contentMap = JSON.parse(await fs.readFile(path.join('app', 'content-map.json'), 'utf-8')) as Record<string, Array<{ frontmatter: { title: string; link?: string; tags: string[]; }, slug: string; }>>;
   
-  let relatedPosts: Array<{ title: string; slug: string; tags: string[] }> = [];
+  let relatedPosts: Array<{ title: string; slug: string; tags: string[]; isLink: boolean; link?: string; LinkComponent: (props: any) => React.JSX.Element }> = [];
 
   let mainTag = mdx.frontmatter.tags?.[0];
   if ((mdx.frontmatter.tags?.length ?? 0) > 0) {
@@ -79,12 +80,16 @@ export default async function Page({
   }
 
   if (mainTag) {
-    relatedPosts = contentMap[mainTag].filter(tip => !tip.frontmatter.link && tip.slug != slug).map(tip => ({
+    relatedPosts = contentMap[mainTag].filter(tip => tip.slug != slug).map(tip => ({
       title: tip.frontmatter.title,
       tags: tip.frontmatter.tags,
       slug: tip.slug,
+      isLink: !!tip.frontmatter.link,
+      link: tip.frontmatter.link,
+      LinkComponent: tip.frontmatter.link ? (props: { href: string; target: string; children: React.ReactNode; className: string; }) => <a {...props} /> : (props: { href: string; children: React.ReactNode; className: string; }) => <Link {...props} />
     }));
     shuffle(relatedPosts);
+    console.log(relatedPosts);
   }
 
   return (
@@ -130,14 +135,14 @@ export default async function Page({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {relatedPosts.length > 0 && relatedPosts.slice(0, Math.min(6, relatedPosts.length)).map((post, index) => (
-            <Link href={`/${post.slug}`} key={post.slug} className="flex flex-col justify-between p-4 rounded ring-1 ring-white/10 hover:ring-white/20 transition-shadow">
+            <post.LinkComponent href={post.isLink ? (post.link ?? '/') : `/${post.slug}`} {...(post.isLink ? { target: '_blank' } : {})} key={post.slug} className="flex flex-col justify-between p-4 rounded ring-1 ring-white/10 hover:ring-white/20 transition-shadow">
               <div className="font-semibold">{post.title}</div>
               <div className="flex row flex-wrap mt-2 gap-2 items-start">
                 {post.tags && post.tags.map((tag) => (
                   <div className={clsx(COLORS?.[tag] ?? 'bg-gray-400/10 text-gray-400 ring-gray-400/20', 'text-xs rounded-sm px-2 py-1 font-medium ring-1 ring-inset')} key={tag}>{tag}</div>
                 ))}
               </div>
-            </Link>
+            </post.LinkComponent>
           ))}
         </div>
       </div>
