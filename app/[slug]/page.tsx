@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import Tweet from '@/components/Tweet';
 import { COLORS } from "@/utils/constants";
 import { shuffle } from '@/utils/utils';
-import { Metadata } from 'next';
+import { Metadata, ResolvingMetadata } from 'next';
 
 export async function generateStaticParams()
 {
@@ -29,6 +29,7 @@ export async function generateStaticParams()
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
+  parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { slug } = params;
  
@@ -42,9 +43,21 @@ export async function generateMetadata(
     source: content,
     options: { parseFrontmatter: true }
   });
+
+  const parentMeta = await parent;
+  const openGraph = parentMeta.openGraph ?? {};
+  const twitter = parentMeta.twitter ?? {};
  
   return {
     title: mdx.frontmatter.title,
+    openGraph: {
+      ...openGraph,
+      title: mdx.frontmatter.title,
+    },
+    twitter: {
+      ...twitter,
+      title: mdx.frontmatter.title,
+    }
   }
 }
 
