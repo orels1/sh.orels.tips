@@ -1,0 +1,135 @@
+---
+title: Better Search Window in Unity Editor Scripts
+tags: [Unity, Editor Scripts]
+created: 2023-10-01T22:39:00
+type: guide
+---
+When creating editor tools - you often need to display a Search UI for the user to find something in a large list of options.
+
+The easiest way to do it is usually just a simple text field + a filter of sorts, like a `List<T>.Where` or even just a `foreach` loop with a continued when the condition fails.
+
+Sometimes, however, you also want a tree-style UI with multiple layers of nesting. And those take time.
+
+Things become even more involved when you want this UI to only be visible in some cases, preferably in a popup. All of that creates a lot of extra boilerplate for something that Unity, seemingly, already has.
+
+And, indeed, it does! Unity's `GraphView` has a tree-style search window for all the nodes. So let's use that instead!
+
+Here's an example of such a window in action
+
+<video width="100%" style={{ aspectRatio: "16/9" }} autoplay muted loop controls>
+  <source src="img/tips/better-search-window-in-editor-scripts/Unity_yT9ZjfLv0h.mp4" type="video/mp4" />
+</video>
+
+## Implementation
+
+Implementing something like this is actually pretty trivial! It's a shame Unity just doesn't provide any documentation.
+
+First, we need to make what unity calls a "provider". It will be used to generate a list of options and handle the selection. Here's the basic layout of a provider
+
+```cs
+using System;  
+using System.Collections.Generic;  
+using UnityEditor.Experimental.GraphView;  
+using UnityEngine;
+
+public class CustomSearchProvider : ScriptableObject, ISearchWindowProvider
+{
+    public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
+    {
+        var entries = List<SearchTreeEntry>();
+        entries.Add(new SearchTreeEntry(new GUIContent("Test Entry!")));
+        return entries;
+    }
+public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
+    {
+        Debug.Log(entry.name);
+        return true;
+    }
+}
+```
+
+As you can see, all we need to do is simply inherit from `ScriptableObject` and implement the `ISearchWindowProvider` interface.
+
+The `CreateSearchTree` function is what is responsible for the search results. It creates a list of `SearchTreeEntry` elements that can be nested using the `SearchTreeGroupEntry` class with a particular `level`.
+
+And then `OnSelectEntry` simply handles the selection. You can return `true` or `false` depending on whether the selection was successful.
+
+This doesn't return anything useful yet, but let's create the actual window-showing logic before we do anything else.
+
+Let's imagine that you have `CustomEditor` of sorts, where you implement a custom`OnGUI` method with a button that is meant to spawn this window.
+
+```cs
+if (GUILayout.Button("Open Search"))
+{
+    var searchContext = new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition), 600, 300);
+    var provider = ScriptableObject.CreateInstance<CustomSearchProvider>();
+    SearchWindow.Open(searchContext, provider);
+}
+```
+
+The only odd-looking thing here is the `GUIToScreenPoint` call, which is required because we're not working in the `GraphView` context, so we need to make sure that the window actually gets offset to where the button is drawn. Otherwise, it will be off.
+
+If you click the button now - a window with a single search entry should appear!
+
+## Making This Useful
+
+Now that you got the basics covered, you might be asking yourself, "how do I even pass my own search results without hardcoding them?". Valid question!
+
+The most common way to do it is to add an extra `Init` method of sorts to the `CustomSearchProvider`. We can't do it in the constructor itself, as `ScriptableObject` requires a parameter-less constructor, so we settle for a custom method. Here's an example
+
+```cs
+public class CustomSearchProvider : ScriptableObject, ISearchWindowProvider
+{
+    // ..old code here
+    private List<SearchTreeEntry> _searchResults;
+    private Func<SearchTreeEntry, bool> _onSelected;
+
+    public void Init(List<string> searchResults, Func<SearchTreeEntry, bool> onSelected)
+    {
+        _searchResult = new List<SearchTreeEntry>();
+        _searchResults.Add(new SearchTreeGroupEntry(new GUIContent("Results"), 0)); // adds a little header up-top
+        foreach(var result of searchResults)
+        {
+            _searchResults.Add(new SearchTreeEntry(new GUIContent(result)));
+        }
+        _onSelected = onSelected;
+    }
+}
+```
+
+Now you have your custom data saved in the particular instance of the search provider. All you need is to edit the original `CreateSearchTree` and `OnSelectEntry` methods to utilize them
+
+```cs
+public class CustomSearchProvider : ScriptableObject, ISearchWindowProvider
+{
+    public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
+    {
+        return _searchResults;
+    }
+public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
+    {
+        return _onSelected?.Invoke(entry) ?? false;
+    }
+
+    // private List<SearchTreeEntry> _searchResults and others below
+}
+```
+
+And now just call that `Init` before `ShowWindow` and you're good to go!
+
+```cs
+if (GUILayout.Button("Open Search"))
+{
+    var searchContext = new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition), 600, 300);
+    var provider = ScriptableObject.CreateInstance<CustomSearchProvider>();
+    provider.Init(new List<string> { "Result 1", "Result 2" }, entry => {
+        Debug.Log(entry);
+        return true;
+    });
+    SearchWindow.Open(searchContext, provider);
+}
+```
+
+Pretty simple and saves you a ton of time developing your own custom search experience 🙏
+
+Hope it saves you some time in the future ❤️
