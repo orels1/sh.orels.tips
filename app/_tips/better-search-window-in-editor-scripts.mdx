@@ -40,7 +40,8 @@ public class CustomSearchProvider : ScriptableObject, ISearchWindowProvider
         entries.Add(new SearchTreeEntry(new GUIContent("Test Entry!")));
         return entries;
     }
-public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
+    
+    public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
     {
         Debug.Log(entry.name);
         return true;
