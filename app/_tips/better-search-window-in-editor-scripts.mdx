@@ -107,7 +107,8 @@ public class CustomSearchProvider : ScriptableObject, ISearchWindowProvider
     {
         return _searchResults;
     }
-public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
+    
+    public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
     {
         return _onSelected?.Invoke(entry) ?? false;
     }
