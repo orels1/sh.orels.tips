@@ -36,12 +36,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div className="mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <div className="relative flex gap-8">
+          <div className="relative flex gap-4">
             <div className="flex flex-shrink-0 items-center">
               <a href="/">
                 <img
                   className="block h-8 w-auto"
-                  src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                  src="/logo.png"
                   alt="orels' Tips"
                 />
               </a>
