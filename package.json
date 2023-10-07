@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "cd utils && node ./content-map.mjs && cd .. && next build",
+    "map-content": "cd utils && node ./content-map.mjs",
     "start": "next start",
     "lint": "next lint"
   },
