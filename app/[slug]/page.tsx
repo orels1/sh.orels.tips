@@ -71,7 +71,7 @@ const components = (slug: string) => ({
   blockquote: (props: any) => <blockquote {...props} className={clsx(props.className, "ring-inset ring-1 ring-white/10 bg-white/10 rounded-md px-4 my-4 py-[1px]")} />,
   p: (props: any) => <p {...props} className={clsx(props.className, "my-4 text-gray-800 dark:text-gray-300 leading-relaxed")} />,
   ul: (props: any) => <ul {...props} className={clsx(props.className, "list-disc list-inside mt-1 mb-4")} />,
-  li: (props: any) => <li {...props} className={clsx(props.className, "my-1 ring-inset ring-1 rounded-md pl-3 dark:ring-white/5 dark:bg-white/5 ring-black/5 bg-black/10")} />,
+  li: (props: any) => <li {...props} className={clsx(props.className, "my-1 rounded-md pl-3")} />,
   a: (props: any) => <Link {...props} className={clsx(props.className, "text-indigo-400 hover:text-indigo-300")} />,
   img: (props: any) => (
     <span className="flex items-center flex-col my-4">
@@ -109,7 +109,7 @@ export default async function Page({
 
   let mainTag = mdx.frontmatter.tags?.[0];
   if ((mdx.frontmatter.tags?.length ?? 0) > 0) {
-    if (mainTag == 'Unity') {
+    if (mainTag == 'Unity' && mdx.frontmatter.tags!.length > 1) {
       mainTag = mdx.frontmatter.tags?.[1];
     }
   }

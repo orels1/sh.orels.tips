@@ -9,7 +9,7 @@
   color-scheme: light dark;
 }
 
-p > code {
+p > code, li > code {
   background-color: hsl(0, 0%, 80%);
   color: #064e3b;
   padding: 0.1rem 0.3rem;
@@ -24,7 +24,7 @@ p > code {
     --background-end-rgb: #141221;
   }
 
-  p > code {
+  p > code, li > code {
     background-color: hsl(0, 0%, 14%);
     padding: 0.1rem 0.3rem;
     color: #10b981;
