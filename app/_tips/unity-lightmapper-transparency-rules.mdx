@@ -1,0 +1,38 @@
+---
+title: Unity Lightmapper's Transparency Handling
+tags:
+  - Unity
+type: tip
+created: 2023-10-07T20:59:00
+source: Pema
+---
+Unity Lightmapper has support for Semi-Transparent and Cutout materials. However, there is a lot of special logic when it comes to figuring out if the material is considered to be transparent.
+
+This is the rough list of rules the Lightmapper follows
+
+
+These are considered Transparent
+- If the material has a texture property called `_TransparencyLM`. This is a special property that even allows for colored shadows from transparent materials. [Read more here](https://docs.unity3d.com/Manual/MetaPass.html)
+- If the shader name includes the following words anywhere
+    - `Transparent`
+    - `Leaf`
+    - `Leaves`
+- If the material uses a render queue above or equals `Transparent` and below `Overlay`
+- If the shader has the following tags
+    - `Transparent`
+    - `GrassBillboard`
+    - `Grass`
+    - `TreeLeaf`
+
+These are considered Cutout
+- If material's render queue is above `AlphaTest` and below `Transparent`
+- If the shader has the following tags
+    - `TreeTransparentCutout`
+    - `TransparentCutout`
+- If SpeedTree-related keywords are present on the material
+
+### Extra Notes
+
+If the material is treated as Cutout and has a `_Cutoff` or `_AlphaTEstRef` properties - the lightmapper will use those to adjust the threshold for clipping.
+
+> If the material is Transparent or Cutout - it must have a defined `_MainTex` as the lightmapper will use it as a source of alpha. The only exception is when you're using the `_TransparentLM` texture for custom colored transparency
