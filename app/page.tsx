@@ -1,4 +1,4 @@
-import 'server-only';;
+import 'server-only';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import fs from 'fs/promises';
 import path from 'path';

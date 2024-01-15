@@ -1,0 +1,39 @@
+---
+title: Copy Unity Scene View to texture
+tags:
+  - Unity
+  - Editor
+  - Scripts
+type: tip
+created: 2024-01-15T16:16:00
+---
+If you ever wanted to capture the whole of Unity Scene View into a texture - [here's a method that lets you do just that](https://github.com/Unity-Technologies/UnityCsReference/blob/master/Editor/Mono/InternalEditorUtility.cs#L670)
+
+A simple setup to copy scene view every frame would look like this
+- Create a new Render Texture with your desired resolution 
+    - for best results you would want to check the size of your scene view and match it
+- Create a script with an `[ExecuteInEditMode]` attribute
+    - Or wire it to some other update loop, like `onEditorUpdate`
+- Call `InternalEditorUtility.CaptureSceneView(SceneView.lastActiveSceneView, rt);`
+```cs
+using UnityEditor;  
+using UnityEditorInternal;  
+using UnityEngine;  
+  
+[ExecuteInEditMode]  
+public class SceneBlitter : MonoBehaviour  
+{  
+    public RenderTexture rt;  
+    void Update()  
+    {
+        if (rt)  
+        {
+            InternalEditorUtility.CaptureSceneView(SceneView.lastActiveSceneView, rt);  
+        }
+    }
+}
+```
+
+Internally, that simply does a copy via `sceneViewInstance.m_Parent.GrabPixels`
+
+> It is worth noting that the cropping of the final texture seems to be off, so you might want to use the `GrabPixels` method directly and pass the correctly size rect as the second argument to work around that
