@@ -26,9 +26,9 @@ import fetch from 'node-fetch';
     }
   )
 
-  const { acccess_token } = await tokenResponse.json();
+  const { access_token } = await tokenResponse.json();
 
-  if (!acccess_token) {
+  if (!access_token) {
     console.error('❌ Failed to get access token\n\n');
     return;
   }
@@ -41,7 +41,7 @@ import fetch from 'node-fetch';
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${acccess_token}`,
+          Authorization: `Bearer ${access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(command),
