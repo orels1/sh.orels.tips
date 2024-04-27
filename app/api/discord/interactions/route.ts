@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import nacl from 'tweetnacl';
 import type { APIInteraction } from 'discord-api-types/v10';
+import contentMap from '../../../content-map.json';
+
+type Frontmatter = {
+  title: string;
+  tags: string[];
+  type: string;
+  link?: string;
+  created: string;
+  source?: string;
+}
 
 export async function POST(request: NextRequest)
 {
@@ -35,27 +45,37 @@ export async function POST(request: NextRequest)
     return NextResponse.json({ type: 1 });
   }
 
-  console.log(body);
-
-  if (body.type > 1 && body.type < 4)
+  if (body.type > 5)
   {
     return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
   }
 
-  if (body.type === 4) {
+  if (body.type === 2) {
     console.log(body.data);
-    return NextResponse.json({
-      type: 4,
-      data: {
-        tts: false,
-        content: 'Test test from the next.js serverless function!',
-        embeds: [],
-        allowed_mentions: {
-          parse: [],
-          replied_user: false
-        }
+
+    if (body.data.type === 1) {
+      if (body.data.options?.[0]?.name === 'topic' && body.data.options?.[0]?.type === 3) {
+        const term = body.data.options[0].value;
+
+        const results: Frontmatter[] = Object.entries(contentMap)
+          .flatMap(([category, items]) => items.map(({ frontmatter }) => ({ category, ...frontmatter })))
+          .filter(({ title, tags }) => title.toLowerCase().includes(term.toLowerCase()) || tags.some(tag => tag.toLowerCase().includes(term.toLowerCase())));
+
+        const resultString = results.map(r => `- ${r.title}`).join('\n');
+        return NextResponse.json({
+          type: 4,
+          data: {
+            tts: false,
+            content: `Test test from the next.js serverless function! Query was ${body.data.options[0].value}\n\nResults\n\n${resultString}`,
+            embeds: [],
+            allowed_mentions: {
+              parse: [],
+              replied_user: false
+            }
+          }
+        });
       }
-    });
+    }
   }
 
 
