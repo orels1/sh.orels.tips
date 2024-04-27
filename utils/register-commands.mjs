@@ -9,10 +9,10 @@ import fetch from 'node-fetch';
 
   console.log('📝 Found', commands.length, 'commands');
 
-  console.log('🕶️ Getting an access tokene');
+  console.log('🕶️ Getting an access token');
 
   const tokenResponse = await fetch(
-    'https://discord.com/api/v10',
+    'https://discord.com/api/v10/oauth2/token',
     {
       method: 'POST',
       headers: {
