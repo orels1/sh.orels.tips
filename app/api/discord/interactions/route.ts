@@ -59,11 +59,18 @@ export async function POST(request: NextRequest)
       if (body.data.options?.[0]?.name === 'topic' && body.data.options?.[0]?.type === 3) {
         const term = body.data.options[0].value;
 
+        const dedupeSet = new Set<string>();
         const results: Frontmatter[] = Object.entries(contentMap)
           .flatMap(([category, items]) => items.map(({ frontmatter, slug }) => ({ category, ...frontmatter, slug })))
           .filter(({ title, tags }) => title.toLowerCase().includes(term.toLowerCase()) || tags.some(tag => tag.toLowerCase().includes(term.toLowerCase())));
 
-        const resultEmbeds = results.map(r => {
+        const deduped = results.filter(r => {
+          if (dedupeSet.has(r.slug)) return false;
+          dedupeSet.add(r.slug);
+          return true;
+        });
+
+        const resultEmbeds = deduped.map(r => {
           const builder = new EmbedBuilder();
           builder.setTitle(r.title);
           builder.addFields({
@@ -84,7 +91,7 @@ export async function POST(request: NextRequest)
           } else {
             builder.setURL(`https://sh.orels.tips/${r.slug}`)
           }
-          builder.setColor(2326507);
+          builder.setColor(9792480);
           builder.setFooter({
             text: `Created: ${new Date(r.created).toLocaleDateString()}`
           })
