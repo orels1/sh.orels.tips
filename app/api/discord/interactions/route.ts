@@ -11,6 +11,7 @@ type Frontmatter = {
   link?: string;
   created: string;
   source?: string;
+  slug: string;
 }
 
 export async function POST(request: NextRequest)
@@ -59,34 +60,33 @@ export async function POST(request: NextRequest)
         const term = body.data.options[0].value;
 
         const results: Frontmatter[] = Object.entries(contentMap)
-          .flatMap(([category, items]) => items.map(({ frontmatter }) => ({ category, ...frontmatter })))
+          .flatMap(([category, items]) => items.map(({ frontmatter, slug }) => ({ category, ...frontmatter, slug })))
           .filter(({ title, tags }) => title.toLowerCase().includes(term.toLowerCase()) || tags.some(tag => tag.toLowerCase().includes(term.toLowerCase())));
 
         const resultEmbeds = results.map(r => {
           const builder = new EmbedBuilder();
-          builder.setAuthor({
-            name: 'sh.orels.tips'
-          });
           builder.setTitle(r.title);
           builder.addFields({
             name: 'Tags',
-            value: r.tags.map(t => t.charAt(0).toUpperCase + t.slice(1)).join(', ')
+            value: r.tags.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')
           });
           builder.addFields({
             name: 'Type',
             value: r.type.charAt(0).toUpperCase() + r.type.slice(1)
           });
           if (r.source) {
-            builder.addFields({
-              name: 'Source',
-              value: r.source
+            builder.setAuthor({
+              name: r.source
             });
           }
           if (r.link) {
             builder.setURL(r.link);
+          } else {
+            builder.setURL(`https://sh.orels.tips/${r.slug}`)
           }
+          builder.setColor(2326507);
           builder.setFooter({
-            text: `Created: ${new Date(r.created).toLocaleDateString()}}`
+            text: `Created: ${new Date(r.created).toLocaleDateString()}`
           })
 
           return builder.data;
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest)
         const resultData = {
           tts: false,
           content: `### This is what I found for \`${term}\``,
-          embeds: resultEmbeds,
+          embeds: resultEmbeds.slice(0, 10),
           allowed_mentions: {
             parse: [],
             replied_user: false
