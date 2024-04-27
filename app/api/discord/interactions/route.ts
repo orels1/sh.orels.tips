@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nacl from 'tweetnacl';
-import type { APIInteraction } from 'discord-api-types/v10';
-import { EmbedBuilder } from '@discordjs/builders';
+import type { APIInteraction, APIModalComponent } from 'discord-api-types/v10';
+import { ActionRowBuilder, ComponentBuilder, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder } from '@discordjs/builders';
 import { ratelimit } from '@/app/api/ratelimit';
 import Search from "@/app/api/search";
 
@@ -139,6 +139,37 @@ export async function POST(request: NextRequest)
       return NextResponse.json({
         type: 4,
         data: resultData,
+      });
+    }
+    case 'add': {
+      if (body.member?.user?.id !== process.env.DISCORD_OWNER_ID) {
+        return NextResponse.json({
+          type: 4,
+          data: {
+            tts: false,
+            content: "You are not allowed to use this command"
+          }
+        });
+      }
+
+      const title = subCommand.options?.[0].type === 3 ? subCommand.options[0].value : null;
+
+      if (!title) {
+        return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
+      }
+
+      const builder = new ModalBuilder();
+      builder.addComponents(new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+        new TextInputBuilder()
+          .setCustomId('title')
+          .setLabel('Title')
+          .setValue(title)
+          .setStyle(1)
+      ));
+
+      return NextResponse.json({
+        type: 9,
+        data: builder.data
       });
     }
     default: {

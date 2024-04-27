@@ -17,6 +17,20 @@
             "min_length": 2
           }
         ]
+      },
+      {
+        "name": "add",
+        "description": "Add a tip",
+        "type": 1,
+        "options": [
+          {
+            "name": "title",
+            "description": "Add a new tip with the specified title, (orels1 only)",
+            "type": 3,
+            "required": true,
+            "min_length": 2
+          }
+        ]
       }
     ]
   }
