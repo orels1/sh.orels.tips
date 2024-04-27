@@ -55,4 +55,6 @@ import fetch from 'node-fetch';
   {
     console.log(`- ${command.name}`);
   }
+
+  console.log('\n');
 })();
