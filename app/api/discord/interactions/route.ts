@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nacl from 'tweetnacl';
+import type { APIInteraction } from 'discord-api-types/v10';
 
 export async function POST(request: NextRequest)
 {
@@ -22,12 +23,39 @@ export async function POST(request: NextRequest)
     return NextResponse.json({ message: 'Invalid request' }, { status: 401 });
   }
 
-  const body = JSON.parse(bodyText) as { type: number; };
+  const body = JSON.parse(bodyText) as APIInteraction;
 
-  if (!body || body.type !== 1)
+  if (!body)
   {
     return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
   }
+
+  // PING
+  if (body.type === 1) {
+    return NextResponse.json({ type: 1 });
+  }
+
+  if (body.type > 1 && body.type < 4)
+  {
+    return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
+  }
+
+  if (body.type === 4) {
+    console.log(body.data);
+    return NextResponse.json({
+      type: 4,
+      data: {
+        tts: false,
+        content: 'Test test from the next.js serverless function!',
+        embeds: [],
+        allowed_mentions: {
+          parse: [],
+          replied_user: false
+        }
+      }
+    });
+  }
+
 
   return NextResponse.json({ type: 1 });
 }

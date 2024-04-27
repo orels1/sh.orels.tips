@@ -1,0 +1,16 @@
+[
+  {
+    "name": "tips",
+    "type": 1,
+    "description": "Search for tips on a topic",
+    "options": [
+      {
+        "name": "topic",
+        "description": "The topic you want to search for",
+        "type": 3,
+        "required": true,
+        "min_length": 2
+      }
+    ]
+  }
+]
