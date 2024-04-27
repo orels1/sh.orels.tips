@@ -3,6 +3,7 @@ import nacl from 'tweetnacl';
 import type { APIInteraction } from 'discord-api-types/v10';
 import contentMap from '../../../content-map.json';
 import { EmbedBuilder } from '@discordjs/builders';
+import { ratelimit } from '@/app/api/ratelimit';
 
 type Frontmatter = {
   title: string;
@@ -54,6 +55,19 @@ export async function POST(request: NextRequest)
 
   if (body.type === 2) {
     console.log(body.data);
+
+    const { success } = await ratelimit.limit(body.member?.user?.id ?? request.ip ?? 'api');
+
+    if (!success) {
+      if (body.data.type)
+      return NextResponse.json({
+        type: 4,
+        data: {
+          tts: false,
+          content: "You are using this command too fast, please try again later"
+        }
+      });
+    }
 
     if (body.data.type === 1) {
       if (body.data.options?.[0]?.name === 'topic' && body.data.options?.[0]?.type === 3) {
