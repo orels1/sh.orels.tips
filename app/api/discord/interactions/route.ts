@@ -92,17 +92,21 @@ export async function POST(request: NextRequest)
           return builder.data;
         });
 
+        const resultData = {
+          tts: false,
+          content: `### This is what I found for \`${term}\``,
+          embeds: resultEmbeds,
+          allowed_mentions: {
+            parse: [],
+            replied_user: false
+          }
+        }
+
+        console.log(resultData);
+
         return NextResponse.json({
           type: 4,
-          data: {
-            tts: false,
-            content: `### This is what I found for \`${term}\``,
-            embeds: [resultEmbeds],
-            allowed_mentions: {
-              parse: [],
-              replied_user: false
-            }
-          }
+          data: resultData,
         });
       }
     }
