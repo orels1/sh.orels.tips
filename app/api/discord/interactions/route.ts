@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import nacl from 'tweetnacl';
 import type { APIInteraction } from 'discord-api-types/v10';
 import contentMap from '../../../content-map.json';
+import { EmbedBuilder } from '@discordjs/builders';
 
 type Frontmatter = {
   title: string;
@@ -61,13 +62,42 @@ export async function POST(request: NextRequest)
           .flatMap(([category, items]) => items.map(({ frontmatter }) => ({ category, ...frontmatter })))
           .filter(({ title, tags }) => title.toLowerCase().includes(term.toLowerCase()) || tags.some(tag => tag.toLowerCase().includes(term.toLowerCase())));
 
-        const resultString = results.map(r => `- ${r.title}`).join('\n');
+        const resultEmbeds = results.map(r => {
+          const builder = new EmbedBuilder();
+          builder.setAuthor({
+            name: 'sh.orels.tips'
+          });
+          builder.setTitle(r.title);
+          builder.addFields({
+            name: 'Tags',
+            value: r.tags.map(t => t.charAt(0).toUpperCase + t.slice(1)).join(', ')
+          });
+          builder.addFields({
+            name: 'Type',
+            value: r.type.charAt(0).toUpperCase() + r.type.slice(1)
+          });
+          if (r.source) {
+            builder.addFields({
+              name: 'Source',
+              value: r.source
+            });
+          }
+          if (r.link) {
+            builder.setURL(r.link);
+          }
+          builder.setFooter({
+            text: `Created: ${new Date(r.created).toLocaleDateString()}}`
+          })
+
+          return builder.data;
+        });
+
         return NextResponse.json({
           type: 4,
           data: {
             tts: false,
-            content: `Test test from the next.js serverless function! Query was ${body.data.options[0].value}\n\nResults\n\n${resultString}`,
-            embeds: [],
+            content: `### This is what I found for \`${term}\``,
+            embeds: [resultEmbeds],
             allowed_mentions: {
               parse: [],
               replied_user: false
