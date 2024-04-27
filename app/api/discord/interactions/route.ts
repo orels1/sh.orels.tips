@@ -35,6 +35,8 @@ export async function POST(request: NextRequest)
     return NextResponse.json({ type: 1 });
   }
 
+  console.log(body);
+
   if (body.type > 1 && body.type < 4)
   {
     return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
