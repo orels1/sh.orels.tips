@@ -167,6 +167,8 @@ export async function POST(request: NextRequest)
           .setStyle(1)
       ));
 
+      console.log(builder.data);
+
       return NextResponse.json({
         type: 9,
         data: builder.data
