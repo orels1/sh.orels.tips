@@ -89,7 +89,7 @@ export async function POST(request: NextRequest)
           if (r.link) {
             builder.setURL(r.link);
           } else {
-            builder.setURL(`https://sh.orels.tips/${r.slug}`)
+            builder.setURL(`https://tips.orels.sh/${r.slug}`)
           }
           builder.setColor(9792480);
           builder.setFooter({
