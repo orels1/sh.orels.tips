@@ -2,14 +2,21 @@
   {
     "name": "tips",
     "type": 1,
-    "description": "Search for tips on a topic",
+    "description": "Interact with the tips DB",
     "options": [
       {
-        "name": "topic",
-        "description": "The topic you want to search for",
-        "type": 3,
-        "required": true,
-        "min_length": 2
+        "name": "search",
+        "description": "Search for a tip",
+        "type": 1,
+        "options": [
+          {
+            "name": "topic",
+            "description": "The topic you want to search for",
+            "type": 3,
+            "required": true,
+            "min_length": 2
+          }
+        ]
       }
     ]
   }
