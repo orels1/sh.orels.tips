@@ -65,7 +65,9 @@ export default async function Home() {
         <div className="grow w-full mt-2 flow-root">
           {Object.entries(groupedTips).map(([category, tips]) => (
             <TipCategory key={category} category={category} count={tips.length}>
-              <FilteredTips tips={tips} />
+              <Suspense fallback={<div>Loading...</div>}>
+                <FilteredTips tips={tips} />
+              </Suspense>
             </TipCategory>
           ))}
         </div>
