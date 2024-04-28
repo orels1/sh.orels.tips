@@ -98,12 +98,10 @@ export async function POST(request: NextRequest)
           text: `Created: ${new Date().toLocaleDateString()}`
         });
 
-        const contentMd = `
----
+        const contentMd = `---
 title: ${title}
-tags: [${tags.join(',')}]
+tags: [${tags.join(', ')}]
 type: ${type}
-slug: ${slug}
 created: ${new Date().toISOString()}
 ${link ? `link: ${link}` : ''}
 ---
