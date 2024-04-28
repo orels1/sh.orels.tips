@@ -4,6 +4,7 @@ import type { APIInteraction, APIModalComponent } from 'discord-api-types/v10';
 import { ActionRowBuilder, ButtonBuilder, ComponentBuilder, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder } from '@discordjs/builders';
 import { ratelimit } from '@/app/api/ratelimit';
 import Search from "@/app/api/search";
+import { Octokit } from 'octokit';
 
 
 export async function POST(request: NextRequest)
@@ -55,9 +56,22 @@ export async function POST(request: NextRequest)
 
     switch (modalId) {
       case 'add_tip': {
-        const title = body.data.components?.[0]?.components?.[0]?.value;
-        const tags = body.data.components?.[1]?.components?.[0]?.value?.split(',').map(t => t.trim()).filter(Boolean);
-        const link = body.data.components?.[2]?.components?.[0]?.value;
+        if (body.member?.user.id !== process.env.DISCORD_OWNER_ID) {
+          return NextResponse.json({
+            type: 4,
+            data: {
+              tts: false,
+              content: "You are not allowed to use this command"
+            }
+          });
+        }
+
+        const title = body.data.components?.find(c => c.components?.[0].custom_id === 'title')?.components?.[0]?.value ?? '';
+        const tags = body.data.components?.find(c => c.components?.[0].custom_id === 'tags')?.components?.[0]?.value?.split(',')?.map(t => t.trim())?.filter(Boolean) ?? [];
+        const link = body.data.components?.find(c => c.components?.[0].custom_id === 'link')?.components?.[0]?.value;
+        const type = body.data.components?.find(c => c.components?.[0].custom_id === 'type')?.components?.[0]?.value;
+        const content = body.data.components?.find(c => c.components?.[0].custom_id === 'content')?.components?.[0]?.value;
+        const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
         const embed = new EmbedBuilder();
         embed.setAuthor({
@@ -65,15 +79,75 @@ export async function POST(request: NextRequest)
         });
         if (link) {
           embed.setURL(link);
+        } else {
+          embed.setURL(`https://tips.orels.sh/${slug}`);
         }
-        embed.setTitle(title);
+        embed.setTitle(title ?? '');
         embed.addFields({
           name: 'Tags',
           value: tags.join(', ')
         });
+        if (type) {
+          embed.addFields({
+            name: 'Type',
+            value: type
+          });
+        }
         embed.setColor(9792480);
         embed.setFooter({
           text: `Created: ${new Date().toLocaleDateString()}`
+        });
+
+        const contentMd = `
+---
+title: ${title}
+tags: [${tags.join(',')}]
+type: ${type}
+slug: ${slug}
+created: ${new Date().toISOString()}
+${link ? `link: ${link}` : ''}
+---
+${content}
+`
+
+        const client = new Octokit({ auth: process.env.GITHUB_TOKEN });
+
+        const existingBranch = await client.rest.repos.getBranch({
+          repo: 'sh.orels.tips',
+          owner: 'orels1',
+          branch: 'main',
+        });
+
+        const branchSHA = existingBranch.data.commit.sha;
+        const parentCommit = branchSHA;
+
+        const tree = await client.rest.git.createTree({
+          repo: 'sh.orels.tips',
+          owner: 'orels1',
+          tree: [
+            {
+              path: 'app/_tips/' + slug + '.mdx',
+              mode: '100644',
+              type: 'blob',
+              content: contentMd,
+            },
+          ],
+          base_tree: branchSHA,
+        });
+
+        const commit = await client.rest.git.createCommit({
+          repo: 'sh.orels.tips',
+          owner: 'orels1',
+          message: `Added a new tip: ${title}`,
+          tree: tree.data.sha,
+          parents: parentCommit ? [parentCommit] : undefined,
+        });
+
+        await client.rest.git.updateRef({
+          repo: 'sh.orels.tips',
+          owner: 'orels1',
+          ref: `heads/main`,
+          sha: commit.data.sha,
         });
 
         return NextResponse.json({ type: 4, data: { content: '### The tip has been saved', embeds: [embed] } });
@@ -228,14 +302,36 @@ export async function POST(request: NextRequest)
             type: 1,
             components: [{
               type: 4,
+              custom_id: 'type',
+              label: 'Type',
+              style: 1,
+              min_length: 2,
+              placeholder: 'talk, guide, tip, source, link',
+              required: true,
+            }]
+          },
+          {
+            type: 1,
+            components: [{
+              type: 4,
               custom_id: 'link',
               label: 'Link',
               style: 1,
-              min_length: 2,
               placeholder: 'Optional link to the source of the tip',
               required: false,
             }]
-          }
+          },
+          {
+            type: 1,
+            components: [{
+              type: 4,
+              custom_id: 'content',
+              label: 'Content',
+              style: 2,
+              placeholder: 'Your markdown content',
+              required: false,
+            }]
+          },
         ]
       }
 
