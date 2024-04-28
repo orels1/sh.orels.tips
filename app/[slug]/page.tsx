@@ -50,13 +50,16 @@ export async function generateMetadata(
  
   return {
     title: mdx.frontmatter.title,
+    description: `Saved On: ${dayjs(mdx.frontmatter.created).format('MMMM D, YYYY')} | Tags: ${mdx.frontmatter.tags?.join(', ')}` + (mdx.frontmatter.source ? ` | Source: ${mdx.frontmatter.source}` : ''),
     openGraph: {
       ...openGraph,
       title: mdx.frontmatter.title,
+      description: `Saved On: ${dayjs(mdx.frontmatter.created).format('MMMM D, YYYY')} | Tags: ${mdx.frontmatter.tags?.join(', ')}` + (mdx.frontmatter.source ? ` | Source: ${mdx.frontmatter.source}` : ''),
     },
     twitter: {
       ...twitter,
       title: mdx.frontmatter.title,
+      description: `Saved On: ${dayjs(mdx.frontmatter.created).format('MMMM D, YYYY')} | Tags: ${mdx.frontmatter.tags?.join(', ')}` + (mdx.frontmatter.source ? ` | Source: ${mdx.frontmatter.source}` : ''),
     }
   }
 }
@@ -146,7 +149,6 @@ export default async function Page({
           </div>
         </div>
       </div>
-      {/* @ts-expect-error Server Component */}
       <MDXRemote
         source={content}
         options={{
