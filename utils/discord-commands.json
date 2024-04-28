@@ -3,6 +3,15 @@
     "name": "tips",
     "type": 1,
     "description": "Interact with the tips DB",
+    "integration_types": [
+      0,
+      1
+    ],
+    "contexts": [
+      0,
+      1,
+      2
+    ],
     "options": [
       {
         "name": "search",
