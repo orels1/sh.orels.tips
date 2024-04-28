@@ -201,10 +201,6 @@ ${content}
           name: 'Tags',
           value: r.tags.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')
         });
-        builder.addFields({
-          name: 'Type',
-          value: r.type.charAt(0).toUpperCase() + r.type.slice(1)
-        });
         if (r.source) {
           builder.setAuthor({
             name: r.source
