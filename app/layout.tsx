@@ -2,6 +2,7 @@ import { Metadata  } from 'next';
 import './globals.css';
 import './prism-duotone-dark.css';
 import { Inter } from 'next/font/google';
+import { cn } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,7 +35,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={cn(inter.className, 'dark')}>
         <div className="mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <div className="relative flex gap-4">
             <div className="flex flex-shrink-0 items-center">
