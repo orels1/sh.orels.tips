@@ -159,12 +159,16 @@ export async function POST(request: NextRequest)
       }
 
       const builder = new ModalBuilder();
+      builder.setTitle('Add a new tip');
+      builder.setCustomId('add_tip');
       builder.addComponents(new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
         new TextInputBuilder()
           .setCustomId('title')
           .setLabel('Title')
           .setValue(title)
           .setStyle(1)
+          .setMinLength(2)
+          .setRequired(true)
       ));
 
       console.log(builder.data);
