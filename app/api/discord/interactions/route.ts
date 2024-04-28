@@ -44,12 +44,51 @@ export async function POST(request: NextRequest)
     return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
   }
 
+  console.log(JSON.stringify(body, null, 2));
+
+  // responding to modals
+  if (body.type === 5) {
+    const modalId = body.data.custom_id;
+    if (!modalId) {
+      return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
+    }
+
+    switch (modalId) {
+      case 'add_tip': {
+        const title = body.data.components?.[0]?.components?.[0]?.value;
+        const tags = body.data.components?.[1]?.components?.[0]?.value?.split(',').map(t => t.trim()).filter(Boolean);
+        const link = body.data.components?.[2]?.components?.[0]?.value;
+
+        const embed = new EmbedBuilder();
+        embed.setAuthor({
+          name: body.member?.user?.global_name ?? ''
+        });
+        if (link) {
+          embed.setURL(link);
+        }
+        embed.setTitle(title);
+        embed.addFields({
+          name: 'Tags',
+          value: tags.join(', ')
+        });
+        embed.setColor(9792480);
+        embed.setFooter({
+          text: `Created: ${new Date().toLocaleDateString()}`
+        });
+
+        return NextResponse.json({ type: 4, data: { content: '### The tip has been saved', embeds: [embed] } });
+      }
+      default: {
+        return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
+      }
+    }
+  }
+
   if (body.type !== 2) {
     return NextResponse.json({ type: 1 });
   }
 
 
-  console.log(body.data);
 
   const { success } = await ratelimit.limit(body.member?.user?.id ?? request.ip ?? 'api');
 
@@ -158,37 +197,44 @@ export async function POST(request: NextRequest)
         return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
       }
 
-      const builder = new ModalBuilder()
-        .setTitle('Add a new tip')
-        .setCustomId('add_tip');
-
-      const titleInput = new TextInputBuilder()
-        .setCustomId('title')
-        .setLabel('Title')
-        .setValue(title)
-        .setStyle(1)
-        .setMinLength(2)
-        .setRequired(true);
-      const titleRow = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(titleInput);
-      builder.addComponents(titleRow);
-
-      console.log(builder.data);
-
       const modal = {
         title: 'Add a new tip',
         custom_id: 'add_tip',
-        components: [{
-          type: 1,
-          components: [{
-            type: 4,
-            custom_id: 'title',
-            label: 'Title',
-            style: 1,
-            min_length: 2,
-            required: true,
-            value: title,
-          }]
-        }]
+        components: [
+          {
+            type: 1,
+            components: [{
+              type: 4,
+              custom_id: 'title',
+              label: 'Title',
+              style: 1,
+              min_length: 2,
+              required: true,
+              value: title,
+            }]
+          },
+          {
+            type: 1,
+            components: [{
+              type: 4,
+              custom_id: 'tags',
+              label: 'Tags',
+              style: 1,
+              placeholder: 'Comma separated tags',
+            }]
+          },
+          {
+            type: 1,
+            components: [{
+              type: 4,
+              custom_id: 'link',
+              label: 'Link',
+              style: 1,
+              min_length: 2,
+              placeholder: 'Optional link to the source of the tip',
+            }]
+          }
+        ]
       }
 
       console.log(modal);
