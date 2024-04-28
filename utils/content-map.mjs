@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getMDXContent, getTipsSlugs } from './content-utils.mjs';
+import dayjs from 'dayjs';
 
 (async () => {
   console.log('⚡ Starting Content Aggregator');
@@ -22,22 +23,36 @@ import { getMDXContent, getTipsSlugs } from './content-utils.mjs';
   console.log('🔖 Grouping by tag');
 
   const tags = new Set();
+  const latestPost = {};
   const groupedByTag = content.reduce((acc, tip) => {
     for (const tag of tip.frontmatter.tags) {
       if (!tags.has(tag)) {
+        latestPost[tag] = dayjs(tip.frontmatter.created);
         tags.add(tag);
         acc[tag] = [tip];
       } else {
+        if (latestPost[tag].isBefore(dayjs(tip.frontmatter.created))) {
+          latestPost[tag] = dayjs(tip.frontmatter.created);
+        }
         acc[tag].push(tip);
       }
     }
     return acc;
   }, {});
 
+  for (const tag in groupedByTag) {
+    groupedByTag[tag] = groupedByTag[tag].sort((a, b) => dayjs(b.frontmatter.date).diff(dayjs(a.frontmatter.date)));
+  }
+
+  const sortedGroupedByTag = Object.keys(groupedByTag).sort((a, b) => latestPost[b].diff(latestPost[a])).reduce((acc, key) => {
+    acc[key] = groupedByTag[key];
+    return acc;
+  }, {});
+
   console.log('📚 Found', tags.size, 'tags\n');
 
   console.log('📚 Grouped Entries:');
-  Object.entries(groupedByTag).forEach(([tag, entries]) => {
+  Object.entries(sortedGroupedByTag).forEach(([tag, entries]) => {
     console.log(`${tag}: ${entries.length} entries`);
     // console.log('\t\t -', entries.join('\n\t\t - '), '\n');
   });
