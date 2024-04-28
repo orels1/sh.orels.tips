@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nacl from 'tweetnacl';
 import type { APIInteraction, APIModalComponent } from 'discord-api-types/v10';
-import { ActionRowBuilder, ComponentBuilder, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder } from '@discordjs/builders';
+import { ActionRowBuilder, ButtonBuilder, ComponentBuilder, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder } from '@discordjs/builders';
 import { ratelimit } from '@/app/api/ratelimit';
 import Search from "@/app/api/search";
 
@@ -158,18 +158,19 @@ export async function POST(request: NextRequest)
         return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
       }
 
-      const builder = new ModalBuilder();
-      builder.setTitle('Add a new tip');
-      builder.setCustomId('add_tip');
-      builder.addComponents(new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-        new TextInputBuilder()
-          .setCustomId('title')
-          .setLabel('Title')
-          .setValue(title)
-          .setStyle(1)
-          .setMinLength(2)
-          .setRequired(true)
-      ));
+      const builder = new ModalBuilder()
+        .setTitle('Add a new tip')
+        .setCustomId('add_tip');
+
+      const titleInput = new TextInputBuilder()
+        .setCustomId('title')
+        .setLabel('Title')
+        .setValue(title)
+        .setStyle(1)
+        .setMinLength(2)
+        .setRequired(true);
+      const titleRow = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(titleInput);
+      builder.addComponents(titleRow);
 
       console.log(builder.data);
 
