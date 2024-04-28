@@ -221,6 +221,7 @@ export async function POST(request: NextRequest)
               label: 'Tags',
               style: 1,
               placeholder: 'Comma separated tags',
+              required: false,
             }]
           },
           {
@@ -232,6 +233,7 @@ export async function POST(request: NextRequest)
               style: 1,
               min_length: 2,
               placeholder: 'Optional link to the source of the tip',
+              required: false,
             }]
           }
         ]
