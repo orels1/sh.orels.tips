@@ -1,6 +1,7 @@
 'use client';
+import { SearchContext } from "@/searchContext";
 import clsx from "clsx";
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 const COLORS: Record<string, string> = {
   'Unity': 'bg-indigo-400/10 text-indigo-400 ring-indigo-400/30',
@@ -26,6 +27,9 @@ export default function TipCategory({
   children: React.ReactNode;
 }) {
   const [expanded, setExpanded] = useState(true);
+  const { tags } = useContext(SearchContext);
+
+  if (tags.length > 0 && !tags.includes(category)) return null;
 
   return (
     <div key={category} className="flex flex-col group/category">

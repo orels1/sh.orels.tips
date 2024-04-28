@@ -1,13 +1,20 @@
 'use client';
 import { createContext, useState } from "react";
+import contentMap from '@/app/content-map.json';
 
 export const SearchContext = createContext<{
   search: string;
+  tags: string[];
   setSearch: (search: string) => void;
+  setTags: (tags: string[]) => void;
 }>({
   search: '',
-  setSearch: (search: string) => {}
+  tags: [],
+  setSearch: (search: string) => {},
+  setTags: (tags: string[]) => {}
 });
+
+const defaultTaags = Object.keys(contentMap);
 
 export default function SearchContextProvider({
   children
@@ -15,13 +22,14 @@ export default function SearchContextProvider({
   children: React.ReactNode
 }) {
   const [search, setSearch] = useState('');
-
-  console.log('search state updated to', search);
+  const [tags, setTags] = useState<string[]>([]);
 
   return (
     <SearchContext.Provider value={{
       search,
-      setSearch
+      setSearch,
+      tags,
+      setTags
     }}>
       {children}
     </SearchContext.Provider>

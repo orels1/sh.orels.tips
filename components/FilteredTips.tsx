@@ -1,11 +1,11 @@
 'use client';
 import Link from "next/link";
-import { MagnifyingGlassIcon, AcademicCapIcon, BookOpenIcon, LightBulbIcon, DocumentArrowDownIcon, LinkIcon } from '@heroicons/react/24/outline';
+import {  AcademicCapIcon, BookOpenIcon, LightBulbIcon, DocumentArrowDownIcon, LinkIcon } from '@heroicons/react/24/outline';
 import clsx from "clsx";
-import { usePathname, useSearchParams } from 'next/navigation';
 import { useContext, useMemo } from "react";
 import { COLORS } from "@/utils/constants";
 import { SearchContext } from "@/searchContext";
+import { hasIntersection } from "@/lib/utils";
 
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -29,35 +29,38 @@ export default function FilteredTips({
     slug: string;
   }>;
 }) {
-  const searchParams = useSearchParams();
-  const { search } = useContext(SearchContext);
+  const { search, tags } = useContext(SearchContext);
 
   const filtered = useMemo(() => {
-    const tag = searchParams.get('tag')?.toLowerCase();
+    // const tag = searchParams.get('tag')?.toLowerCase();
 
-    if (search === undefined && tag === undefined) {
+    if ((search === undefined || search.length === 0) && tags.length === 0) {
       return tips;
     }
 
+    const searchTagSet = new Set(tags.map((tag) => tag.toLowerCase()));
+
     return tips.filter((tip) => {
-      if (search !== undefined) {
+      const tipsTagSet = new Set(tip.frontmatter.tags.map((tag) => tag.toLowerCase()));
+      
+      if (search !== undefined && search.length > 0) {
         if (tip.frontmatter.title.toLowerCase().includes(search.toLocaleLowerCase())) {
           return true;
         }
-        if (tip.frontmatter.tags.some((tag) => tag.toLowerCase().includes(search.toLocaleLowerCase()))) {
+        if (hasIntersection(searchTagSet, tipsTagSet)) {
           return true;
         }
       }
 
-      if (tag !== undefined) {
-        if (tip.frontmatter.tags.some((t) => t.toLowerCase() === tag)) {
+      if (tags.length > 0) {
+        if (hasIntersection(searchTagSet, tipsTagSet)) {
           return true;
         }
       }
 
       return false;
     });
-  }, [tips, search, searchParams]);
+  }, [tips, search, tags]);
 
   return (
     <ul role="list" className="divide-y divide-solid divide-black/10 dark:divide-white/10 sm:divide-none">
