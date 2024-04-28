@@ -41,7 +41,7 @@ import dayjs from 'dayjs';
   }, {});
 
   for (const tag in groupedByTag) {
-    groupedByTag[tag] = groupedByTag[tag].sort((a, b) => dayjs(b.frontmatter.date).diff(dayjs(a.frontmatter.date)));
+    groupedByTag[tag] = groupedByTag[tag].sort((a, b) => dayjs(b.frontmatter.created).diff(dayjs(a.frontmatter.created)));
   }
 
   const sortedGroupedByTag = Object.keys(groupedByTag).sort((a, b) => latestPost[b].diff(latestPost[a])).reduce((acc, key) => {
@@ -59,5 +59,5 @@ import dayjs from 'dayjs';
 
   console.log('\n📦 Writing to file');
 
-  await fs.writeFile(path.join('../', 'app', 'content-map.json'), JSON.stringify(groupedByTag));
+  await fs.writeFile(path.join('../', 'app', 'content-map.json'), JSON.stringify(sortedGroupedByTag));
 })();
