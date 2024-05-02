@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
           }
           if (r.type === 'snippet' && r.content && r.content.length > 0)
           {
-            builder.setDescription(r.content);
+            builder.setDescription(r.content.replace(/```hlsl/g, '```c++'));
           }
           if (r.link) {
             builder.setURL(r.link);
