@@ -1,0 +1,27 @@
+---
+title: RGSS Shader-Based Supersampling for Textures
+tags: [Shaders, Unity, Source]
+type: tip
+created: 2024-05-02T06:51:13.075Z
+---
+You can use the following shader code for simple Rotated-Grid based supersampling for textures.
+
+```hlsl
+// per pixel partial derivatives
+float2 dx = ddx(i.uv.xy);
+float2 dy = ddy(i.uv.xy);
+// rotated grid uv offsets
+float2 uvOffsets = float2(0.125, 0.375);
+float4 offsetUV = float4(0.0, 0.0, 0.0, _Bias);
+// supersampled using 2x2 rotated grid
+half4 col = 0;
+offsetUV.xy = i.uv.xy + uvOffsets.x * dx + uvOffsets.y * dy;
+col += tex2Dbias(_MainTex, offsetUV);
+offsetUV.xy = i.uv.xy - uvOffsets.x * dx - uvOffsets.y * dy;
+col += tex2Dbias(_MainTex, offsetUV);
+offsetUV.xy = i.uv.xy + uvOffsets.y * dx - uvOffsets.x * dy;
+col += tex2Dbias(_MainTex, offsetUV);
+offsetUV.xy = i.uv.xy - uvOffsets.y * dx + uvOffsets.x * dy;
+col += tex2Dbias(_MainTex, offsetUV);
+col *= 0.25;
+```
