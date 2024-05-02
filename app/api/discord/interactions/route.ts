@@ -122,6 +122,10 @@ export async function POST(request: NextRequest) {
               name: r.source,
             });
           }
+          if (r.type === 'snippet' && r.content && r.content.length > 0)
+          {
+            builder.setDescription(r.content);
+          }
           if (r.link) {
             builder.setURL(r.link);
           } else {
@@ -226,7 +230,7 @@ export async function POST(request: NextRequest) {
                 label: "Type",
                 style: 1,
                 min_length: 2,
-                placeholder: "talk, guide, tip, source, link",
+                placeholder: "talk, guide, tip, source, link, snippet",
                 required: true,
               },
             ],

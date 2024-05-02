@@ -1,6 +1,6 @@
 'use client';
 import Link from "next/link";
-import {  AcademicCapIcon, BookOpenIcon, LightBulbIcon, DocumentArrowDownIcon, LinkIcon } from '@heroicons/react/24/outline';
+import {  AcademicCapIcon, BookOpenIcon, LightBulbIcon, DocumentArrowDownIcon, LinkIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import clsx from "clsx";
 import { useContext, useMemo } from "react";
 import { COLORS } from "@/utils/constants";
@@ -14,6 +14,7 @@ const ICONS: Record<string, React.ReactNode> = {
   'tip': <LightBulbIcon />,
   'source': <DocumentArrowDownIcon />,
   'link': <LinkIcon />,
+  'snippet': <DocumentTextIcon />
 }
 
 export default function FilteredTips({

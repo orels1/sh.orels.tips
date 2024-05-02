@@ -64,7 +64,7 @@ export default async function addTipSubmit(body: APIModalSubmitInteraction)
     frontmatter: {
       title,
       tags,
-      type: type as 'talk' | 'guide' | 'tip' | 'source' | 'link',
+      type: type as 'talk' | 'guide' | 'tip' | 'source' | 'link' | 'snippet',
       link,
     },
     content,

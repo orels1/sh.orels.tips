@@ -10,13 +10,14 @@ type Frontmatter = {
   created: string;
   source?: string;
   slug: string;
+  content?: string;
 }
 
 export default function Search(term: string): Frontmatter[]
 {
   const dedupeSet = new Set<string>();
   return Object.entries(CONTENT)
-    .flatMap(([category, items]) => items.map(({ frontmatter, slug }) => ({ category, ...frontmatter, slug })))
+    .flatMap(([category, items]) => items.map(({ frontmatter, slug, content }) => ({ category, ...frontmatter, slug, content: (content.trim().length > 0 ? content : undefined) })))
     .filter(({ title, tags }) => title.toLowerCase().includes(term.toLowerCase()) || tags.some(tag => tag.toLowerCase().includes(term.toLowerCase())))
     .filter(r => {
       if (dedupeSet.has(r.slug)) return false;

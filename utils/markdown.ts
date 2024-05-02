@@ -12,7 +12,7 @@ export function createMarkdownContent({
     title: string,
     tags: string[],
     link?: string;
-    type: 'talk' | 'guide' | 'tip' | 'source' | 'link',
+    type: 'talk' | 'guide' | 'tip' | 'source' | 'link' | 'snippet',
     source?: string;
   };
   content?: string;

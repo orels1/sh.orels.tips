@@ -18,13 +18,20 @@ export const getTipsSlugs = async () => {
 
 export const getMDXContent = async (slug) => {
   const text = await fs.readFile(path.join('../', 'app', '_tips', slug + '.mdx'), 'utf-8');
-  const { content, frontmatter } = await compileMDX({
+  const { frontmatter } = await compileMDX({
     source: text,
     options: { parseFrontmatter: true }
   });
+  
   return {
     frontmatter,
     slug,
-    content
+    content: extractMarkdownContent(text)
   }
+}
+
+export const extractMarkdownContent = (content) => {
+  const frontmatterRegex = /---[\s\S]*?---/;
+  const markdownContent = content.replace(frontmatterRegex, '').trim();
+  return markdownContent;
 }
