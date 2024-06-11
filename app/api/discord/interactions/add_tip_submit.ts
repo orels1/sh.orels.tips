@@ -31,7 +31,7 @@ function parseAddTipModal(body: APIModalSubmitInteraction)
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
-  const author = body.member?.user?.global_name ?? "";
+  const author = body.member?.user?.global_name ?? body.user?.global_name ?? "";
 
   return {
     title,
