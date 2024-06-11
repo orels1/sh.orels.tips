@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
       });
     }
     case "add": {
-      if (body.member?.user?.id !== process.env.DISCORD_OWNER_ID) {
+      if (body.member?.user?.id !== process.env.DISCORD_OWNER_ID && body.user?.id !== process.env.DISCORD_OWNER_ID) {
         return NextResponse.json({
           type: 4,
           data: {
