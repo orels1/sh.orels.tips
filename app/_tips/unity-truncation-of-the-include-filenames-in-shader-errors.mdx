@@ -1,0 +1,11 @@
+---
+title: Unity truncation of the include filenames in shader errors
+tags: [Unity, Shaders]
+type: tip
+created: 2025-02-08T02:04:46.048Z
+---
+When your shader has a warning/error - unity will show that in the inspector for that shader file.
+It also includes the name of the file the error came from.
+
+For reasons only known to unity - that file name is truncated to the rightmost space.
+So something like `My Custom Lighting.hlsl` will turn into `Lighting.hlsl` which might make you think the error comes from unity's built in file and not `My Custom Lighting.hlsl`
