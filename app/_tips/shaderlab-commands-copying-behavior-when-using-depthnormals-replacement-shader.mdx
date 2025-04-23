@@ -1,0 +1,17 @@
+---
+title: ShaderLab commands copying behavior when using DepthNormals Replacement Shader
+tags: [Unity, Shaders, References]
+type: tip
+created: 2025-04-23T02:13:19.417Z
+---
+Unity replacement shaders have some internal logic to copy over ShaderLab commands from the original shader. However, it seems to be a little flawed, which results in unpredictable shader behaviour in some cases.
+
+E.g. if a shader defines a `ZWrite [_ZWrite]` - the shader replacement logic seems to copy the value of the first rendered object's `_ZWrite` property into the global state and then use that across other objects, which is undesirable.
+
+Some commands also aren't included at all unless one of the more common ones - like `ZWrite` is also defined.
+
+E.g. if a shader has `ColorMask R` - that `ColorMask` command won't be copied unless something like `ZWrite` is also explicitly set on the shader. Furthermore, if your `ColorMask` is driven by some property, like `ColorMask [_ColorMask]` the state of that property won't be copied over, the shader will get an error and the mesh won't be rendered at all.
+
+Another thing to pay attention to is the `Blend` command, as that is also copied over, so you can get undesirable effects like doing blending inside the DepthNormals buffer.
+
+This behaviour might also be limited to the DepthNormals Replacement Shader as well
