@@ -1,4 +1,3 @@
-import { ratelimit } from "@/app/api/ratelimit";
 import Search from "@/app/api/search";
 import { EmbedBuilder } from "@discordjs/builders";
 import type { APIInteraction } from "discord-api-types/v10";
@@ -65,22 +64,6 @@ export async function POST(request: NextRequest) {
 
   if (body.type !== 2) {
     return NextResponse.json({ type: 1 });
-  }
-
-  const { success } = await ratelimit.limit(
-    body.member?.user?.id ?? request.ip ?? "api",
-  );
-
-  if (!success) {
-    if (body.data.type)
-      return NextResponse.json({
-        type: 4,
-        data: {
-          tts: false,
-          content:
-            "You are using this command too fast, please try again later",
-        },
-      });
   }
 
   if (body.data.type !== 1) {
